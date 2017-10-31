@@ -10,18 +10,26 @@ We are going to parallelize an image stitching program that aligns a set of imag
 
 Automated panoramic image stitching is an interesting topic in computer vision. It consists of an interest point detector, a feature descriptor such as SIFT and BRIEF, and an image stitching tool based on feature matching. It extends the limitation of physical camera to capture scenes that cannot be captured in one frame, and easily generates the effects that would otherwise be expensive to produce. The program can be broken down into several highly parallelizable stages:
 
+
+
 **1) Interest Point Detection**: interest points provide an efficient representation of the image. Interest points are found using Difference of Gaussian (DoG), which can be obtained by subtracting adjacent levels of a Gaussian Pyramid.
 
-<img src="https://user-images.githubusercontent.com/16803685/32247304-48e5ceee-be58-11e7-9880-db5f5eb824b0.png" alt="img1" width="200" />
+<img src="https://user-images.githubusercontent.com/16803685/32247308-4e742ca2-be58-11e7-87ef-81cdaab4260b.png" alt="img2" width="800" />
+
+<img src="https://user-images.githubusercontent.com/16803685/32247312-523eccd4-be58-11e7-9b6c-e5fa2cc07e3a.png" alt="img3" width="800" />
 
 
 **2) Feature Descriptor**: feature descriptor characterizes the local information about an interest point. We will use either SIFT (Scale invariant feature descriptor) or BRIEF(Binary Robust Independent Elementary Features) as our choice of descriptor. If time allowed, we can experiment with different descriptors and compare the results.
 
 **3) Matching Interest points**: match interest points using the distance of their descriptors.
 
+<img src="https://user-images.githubusercontent.com/16803685/32247324-5722f748-be58-11e7-885f-cfc13b3831cb.png" alt="img4" width="800" />
+
 **4) Align images**: compute the alignment of image pairs by estimating their homography (projection from one image to another).
 
 **5) Stitching**: crop and blend the aligned images to produce the final result. If time allowed, we will address the problem of vertical “drifting” between image pairs by applying some “straightening” algorithm.
+
+<img src="https://user-images.githubusercontent.com/16803685/32247454-ce36ce90-be58-11e7-9cee-5a417001f309.png" alt="img5" width="800" />
 
 ## Challenges
 
