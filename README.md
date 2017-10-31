@@ -10,8 +10,7 @@ We are going to parallelize an image stitching program that aligns a set of imag
 
 Automated panoramic image stitching is an interesting topic in computer vision. It consists of an interest point detector, a feature descriptor such as SIFT and BRIEF, and an image stitching tool based on feature matching. It extends the limitation of physical camera to capture scenes that cannot be captured in one frame, and easily generates the effects that would otherwise be expensive to produce. The program can be broken down into several highly parallelizable stages:
 
-<img src="https://user-images.githubusercontent.com/16803685/32248395-f8698b64-be5b-11e7-933c-25ecd84771af.png
-" alt="img0" width="800" align="middle" />
+<img src="https://user-images.githubusercontent.com/16803685/32248395-f8698b64-be5b-11e7-933c-25ecd84771af.png" alt="img0" width="800" align="middle" />
 
 **1) Interest Point Detection**: interest points provide an efficient representation of the image. Interest points are found using Difference of Gaussian (DoG), which can be obtained by subtracting adjacent levels of a Gaussian Pyramid.
 
