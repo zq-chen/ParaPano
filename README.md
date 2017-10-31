@@ -12,7 +12,7 @@ Automated panoramic image stitching is an interesting topic in computer vision. 
 
 **1) Interest Point Detection**: interest points provide an efficient representation of the image. Interest points are found using Difference of Gaussian (DoG), which can be obtained by subtracting adjacent levels of a Gaussian Pyramid.
 
-![alt text](https://user-images.githubusercontent.com/16803685/32247304-48e5ceee-be58-11e7-9880-db5f5eb824b0.png width="48")
+![alt text](https://user-images.githubusercontent.com/16803685/32247304-48e5ceee-be58-11e7-9880-db5f5eb824b0.png =100x)
 
 **2) Feature Descriptor**: feature descriptor characterizes the local information about an interest point. We will use either SIFT (Scale invariant feature descriptor) or BRIEF(Binary Robust Independent Elementary Features) as our choice of descriptor. If time allowed, we can experiment with different descriptors and compare the results.
 
