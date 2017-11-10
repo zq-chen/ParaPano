@@ -21,15 +21,18 @@ void display(Mat& im);
 
 int main(int argc, char** argv) {
 
-//    cout << "Create gaussian filter" << endl;
-//    float* gaussian = createGaussianFilter(3, 3, 0.5);
-//    printGaussianFilter(gaussian, 3, 3);
+    cout << "Create gaussian filter" << endl;
+    float* gaussian = createGaussianFilter(3, 3, 0.5);
+    printGaussianFilter(gaussian, 3, 3);
 
     String im1_name( "../data/incline_L.png");
+    if( argc > 1) {
+        im1_name = argv[1];
+    }
+
     Mat im1_color = imread(im1_name, IMREAD_COLOR);
     Mat im1_gray;
     cvtColor(im1_color,im1_gray,CV_RGB2GRAY);
-
 
     display(im1_gray);
     return 0;
