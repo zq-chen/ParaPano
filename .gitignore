@@ -1,3 +1,14 @@
+# Cmake files
+*.txt
+cmake-build-debug
+CMakeFiles
+cmake_install.cmake
+ParaPano.cbp
+
+# Other
+.idea/
+.DS_Store
+
 # Prerequisites
 *.d
 
