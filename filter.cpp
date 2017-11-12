@@ -38,7 +38,6 @@ float* createGaussianFilter(const int fh, const int fw, float sigma) {
 void printGaussianFilter(float* filter, int fh, int fw) {
     for (int i = 0; i < fh; i++) {
         for (int j = 0; j < fw; j++) {
-//            cout<<filter[i * fw + j]<<" ";
             printf("%.4f ", filter[i * fw + j]);
         }
         cout<<endl;
@@ -49,7 +48,6 @@ inline bool inBound(int r, int c, int h, int w) {
     return r >= 0 && r < h && c >= 0 && c < w;
 }
 
-// assume filter size is odd
 float* applyFilter(float* img, float* filter, int h, int w, int fh, int fw) {
     float* output = new float[h*w];
     int fhHalf = fh/2;
