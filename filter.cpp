@@ -69,18 +69,6 @@ float* applyFilter(float* img, float* filter, int h, int w, int fh, int fw) {
     return output;
 }
 
-
-//float** createGaussianFilters(float sigma0, float k, int* levels, int num_levels) {
-//    float** gaussian_filters = new float*[num_levels];
-//    for (int i = 0; i < num_levels; i++) {
-//        float sigma = sigma0 * pow(k, levels[i]);
-//        float fsize = floor(3*sigma*2)+1;
-//        float* filter = createGaussianFilter(fsize, fsize, sigma);
-//        gaussian_filters[i] = filter;
-//    }
-//    return gaussian_filters;
-//}
-
 float** createGaussianPyramid(float* img, int h, int w, float sigma0, float k, int* levels, int num_levels) {
     float** gaussian_pyramid = new float*[num_levels];
     for (int i = 0; i < num_levels; i++) {

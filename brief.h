@@ -22,7 +22,12 @@ struct BriefResult {
     BriefResult(std::vector<cv::Point> k, std::vector<Descriptor> d): keypoints(k), descriptors(d) {}
 };
 
+struct MatchResult {
+    std::vector<int> indices1;
+    std::vector<int> indices2;
+};
 
 BriefResult BriefLite(std::string im_name, cv::Point* compareA, cv::Point* compareB);
+MatchResult briefMatch(std::vector<Descriptor>& desc1, std::vector<Descriptor>& desc2);
 
 #endif //PARAPANO_BRIEF_H

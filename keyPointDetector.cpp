@@ -30,13 +30,24 @@ float** createDoGPyramid(float** gaussian_pyramid, int h, int w, int num_levels)
 }
 
 //  dx(i) = (I(i+1)-I(i-1))/2
+
+inline bool inBound(int r, int c, int h, int w) {
+    return r >= 0 && r < h && c >= 0 && c < w;
+}
+
 float computeDx(float* img, int h, int w, int row, int col) {
+    if (!inBound(row, col, h, w)) {
+        return 0;
+    }
     float left = col > 0? img[row * w + col - 1] : 0;
     float right = col < w - 1? img[row * w + col + 1] : 0;
     return (right - left) / 2.0;
 }
 
 float computeDy(float* img, int h, int w, int row, int col) {
+    if (!inBound(row, col, h, w)) {
+        return 0;
+    }
     float up = row > 0? img[(row - 1)*w + col] : 0;
     float down = row < h - 1? img[(row + 1)*w + col] : 0;
     return  (up - down) / 2.0;
@@ -65,9 +76,6 @@ float computePrincipalCurvature(float* img, int h, int w, int row, int col) {
 
 }
 
-inline bool inBound(int r, int c, int h, int w) {
-    return r >= 0 && r < h && c >= 0 && c < w;
-}
 
 void setLocalExtremaBoolean(float val, float temp_val, bool& isLocalMin, bool& isLocalMax) {
     if (temp_val > val) {
@@ -108,7 +116,9 @@ vector<Point> getLocalExtrema(float** dog_pyramid, int num_levels, int h, int w,
     int patch_size = 3;
     for (int i = 0; i < h; i++) { // row
         for (int j = 0; j < w; j++) { // col
+
             for (int k = 0; k < num_levels; k++) {
+
                 float* dog = dog_pyramid[k];
                 float* dog_prev = k > 0? dog_pyramid[k-1] : NULL;
                 float* dog_next = k < num_levels - 1? dog_pyramid[k+1] : NULL;
@@ -134,6 +144,7 @@ vector<Point> getLocalExtrema(float** dog_pyramid, int num_levels, int h, int w,
                 // point is a key point
                 keypoints.push_back(Point(j, i));
                 break;
+
             }
         }
     }

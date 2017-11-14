@@ -8,6 +8,7 @@ ParaPano.cbp
 .idea/
 .DS_Store
 output/
+build/
 
 # Prerequisites
 *.d

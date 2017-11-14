@@ -11,16 +11,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <limits>
 #include "filter.h"
 #include "keyPointDetector.h"
 #include "brief.h"
 
 using namespace cv;
 using namespace std;
-
-bool hasValidPatch(int h, int w, int row, int col);
-float* getPatch(float* im, int begin_row, int begin_col, int w);
-Descriptor computeKeypointDescriptor(float* patch, Point* compareA, Point* compareB);
 
 inline bool isInBound(int r, int c, int h, int w) {
     return r >= 0 && r < h && c >= 0 && c < w;
@@ -59,12 +56,14 @@ void denormalize(float* img_ptr, int h, int w) {
     }
 }
 
-void outputImageWithKeypoints(Mat& img, vector<Point>& keypoints) {
+void outputImageWithKeypoints(string im_path, Mat& img, vector<Point>& keypoints) {
+    size_t idx = im_path.find_last_of("/\\");
+    string im_name = im_path.substr(idx+1);
     vector<Point>::iterator it;
     for (it = keypoints.begin(); it != keypoints.end(); ++it) {
         circle(img, *it, 1, Scalar(0, 0, 255), 1, 8);
     }
-    imwrite("../output/keypoints.jpg", img);
+    imwrite("../output/" + im_name + "_keypoints.jpg", img);
     cout << "Output image with key points" << endl;
 }
 
@@ -152,6 +151,8 @@ BriefResult BriefLite(string im_name, Point* compareA, Point* compareB) {
 
     float** gaussian_pyramid = createGaussianPyramid(im1_ptr, h, w, sigma0, k, levels, num_levels);
     float** dog_pyramid = createDoGPyramid(gaussian_pyramid, h, w, num_levels);
+    // outputGaussianImages(gaussian_pyramid, h, w, num_levels);
+    // outputDoGImages(dog_pyramid, h, w, num_levels);
     cout << "Created DoG Pyramid" << endl;
 
     // Detect key points
@@ -160,7 +161,7 @@ BriefResult BriefLite(string im_name, Point* compareA, Point* compareB) {
     vector<Point> keypoints = getLocalExtrema(dog_pyramid, num_levels - 1, h, w, th_contrast, th_r);
     printf("Detected %lu key points\n", keypoints.size());
 
-    outputImageWithKeypoints(im_color, keypoints);
+    outputImageWithKeypoints(im_name, im_color, keypoints);
 
     BriefResult brief_result = computeBrief(gaussian_pyramid[0], h, w, keypoints, compareA, compareB);
 
@@ -170,4 +171,47 @@ BriefResult BriefLite(string im_name, Point* compareA, Point* compareB) {
     cout << "Cleaned up Memory" << endl;
 
     return brief_result;
+}
+
+int hammingDistance(Descriptor& d1, Descriptor& d2) {
+    int dist = 0;
+    for (int i = 0; i < NUM_OF_TEST_PAIRS; i++) {
+        if (d1.values[i] != d2.values[i]) {
+            dist += 1;
+        }
+    }
+    return dist;
+}
+
+float findBestMatch(vector<Descriptor>& desc, Descriptor& d, int& match_idx) {
+    int min = INT_MAX;
+    int second_min = INT_MAX;
+    int min_idx = -1;
+    for (int i = 0; i < desc.size(); i++) {
+        int dist = hammingDistance(desc[i], d);
+        if (dist < min) {
+            second_min = min;
+            min = dist;
+            min_idx = i;
+        } else if (dist < second_min) {
+            second_min = dist;
+        }
+    }
+    match_idx = min_idx;
+    return second_min == 0? 1:float(min)/second_min;
+}
+
+// match desc1 against desc2
+MatchResult briefMatch(vector<Descriptor>& desc1, vector<Descriptor>& desc2) {
+    MatchResult match_result;
+    float ratio = 0.8;
+    for (int i = 0; i < desc1.size(); i++) {
+        int match_idx;
+        float r = findBestMatch(desc2, desc1[i], match_idx);
+        if (r < ratio) {
+            match_result.indices1.push_back(i);
+            match_result.indices2.push_back(match_idx);
+        }
+    }
+    return match_result;
 }
