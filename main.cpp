@@ -1,7 +1,7 @@
 //
 // Created by Xin Xu on 11/9/17.
 //
-
+#include "opencv2/opencv.hpp"
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "brief.h"
+#include "stitcher.h"
 
 using namespace cv;
 using namespace std;
@@ -52,11 +53,36 @@ int main(int argc, char** argv) {
     BriefResult brief_result2 = BriefLite(im2_name, compareA, compareB);
 
     MatchResult match = briefMatch(brief_result1.descriptors, brief_result2.descriptors);
-    plotMatches(im1_name, im2_name, brief_result1.keypoints, brief_result2.keypoints, match);
+    // plotMatches(im1_name, im2_name, brief_result1.keypoints, brief_result2.keypoints, match);
 
-    
+    vector<Point> pts1;
+    pts1.reserve(match.indices1.size());
+    vector<Point> pts2;
+    pts2.reserve(match.indices2.size());
+    for (int i = 0; i < match.indices1.size(); i++) {
+        int idx1 = match.indices1[i];
+        int idx2 = match.indices2[i];
+        pts1.push_back(brief_result1.keypoints[idx1]);
+        pts2.push_back(brief_result2.keypoints[idx2]);
+    }
 
+//    float H_values[9] = {0.6566, -0.0373, 108.9691, -0.0793, 0.8724, -4.7466, -0.0012, -0.0001, 1.0000};
+//    Mat H = Mat(3, 3, CV_32F, H_values);
+
+    // Calculate Homography and warp image
+    Mat H = findHomography(pts2, pts1, RANSAC, 4.0);
+    H.convertTo(H,CV_32F);
+    stitchImages(im1, im2, H);
     return 0;
+}
+
+void printMatrix(Mat& m) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            printf("%f ", m.at<float>(i,j));
+        }
+        cout << endl;
+    }
 }
 
 void plotMatches(string im1_name, string im2_name, vector<Point>& pts1, vector<Point>& pts2, MatchResult& match) {
@@ -80,10 +106,6 @@ void plotMatches(string im1_name, string im2_name, vector<Point>& pts1, vector<P
 
     cout << "Output Match Image" << endl;
     imwrite("../output/match.jpg", grid);
-
-//    namedWindow( "Display window", WINDOW_AUTOSIZE ); // Create a window for display.
-//    imshow( "Display window", grid);                // Show our image inside it.
-//    waitKey(0);
 }
 
 int readTestPattern(Point*& compareA, Point*& compareB, string test_pattern_filename) {
