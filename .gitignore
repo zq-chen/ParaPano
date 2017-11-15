@@ -9,6 +9,8 @@ ParaPano.cbp
 .DS_Store
 output/
 build/
+data/resize.m
+data/FeatureBasedPanoramicImageStitchingExample_01.png
 
 # Prerequisites
 *.d

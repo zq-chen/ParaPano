@@ -21,25 +21,37 @@ using namespace std;
 
 int readTestPattern(Point*& compareA, Point*& compareB, string test_pattern_filename);
 void plotMatches(string im1_name, string im2_name, vector<Point>& pts1, vector<Point>& pts2, MatchResult& match);
+Mat computeHomography(string im1_name, string im2_name, BriefResult brief_result1, BriefResult brief_result2);
+void displayImg(Mat& im);
+
+bool ReadImage(string im_name, Mat& im) {
+    im = imread(im_name, IMREAD_COLOR);
+    if(!im.data ) {
+        cout <<  "Could not open or find the image " + im_name << endl ;
+        return false;
+    }
+    return true;
+}
 
 int main(int argc, char** argv) {
 
-    string im1_name = "../data/incline_L.png";
-    string im2_name = "../data/incline_R.png";
-    if( argc > 2) {
-        im1_name = argv[1];
-        im2_name = argv[2];
-    }
+    int num_images = 4;
+    // string im_names[2] = {"../data/building_1.jpg", "../data/building_2.jpg"};
 
-    Mat im1 = imread(im1_name, IMREAD_COLOR);
-    Mat im2 = imread(im2_name, IMREAD_COLOR);
-    if(!im1.data ) {
-        cout <<  "Could not open or find the image " + im1_name << endl ;
-        return -1;
-    }
-    if(!im2.data ) {
-        cout <<  "Could not open or find the image " + im2_name << endl ;
-        return -1;
+    string im_names[4] = {"../data/building_1.jpg", "../data/building_2.jpg", "../data/building_3.jpg",
+            "../data/building_4.jpg"};
+//    int num_images = argc - 1;
+//    string im_names[num_images];
+
+    vector<Mat> images;
+    images.reserve(num_images);
+    for (int i = 0; i < num_images; i++) {
+        Mat im;
+        if (!ReadImage(im_names[i], im)) {
+            return -1;
+        }
+        convertImg2Float(im);
+        images.push_back(im);
     }
 
     // read in test pattern points to compute BRIEF
@@ -49,12 +61,44 @@ int main(int argc, char** argv) {
     readTestPattern(compareA, compareB, test_pattern_filename);
 
     // compute BRIEF for keypoints
-    BriefResult brief_result1 = BriefLite(im1_name, compareA, compareB);
-    BriefResult brief_result2 = BriefLite(im2_name, compareA, compareB);
+    vector<BriefResult> brief_results;
+    brief_results.reserve(num_images);
+    for (int i = 0; i < num_images; i++) {
+        BriefResult brief_result = BriefLite(im_names[i], compareA, compareB);
+        brief_results.push_back(brief_result);
+    }
 
+//    float H_values[9] = {0.6566, -0.0373, 108.9691, -0.0793, 0.8724, -4.7466, -0.0012, -0.0001, 1.0000};
+//    Mat H = Mat(3, 3, CV_32F, H_values);
+
+    vector<Mat> homographies;
+    homographies.reserve(num_images-1);
+    for (int i = 0; i < num_images-1; i++) {
+        Mat H = computeHomography(im_names[i], im_names[i+1], brief_results[i], brief_results[i+1]);
+        homographies.push_back(H);
+    }
+
+    Mat prev_img = images[0];
+    Mat prev_H = Mat::eye(3, 3, CV_32F);
+    Mat mask1 = creatMask(prev_img);
+    for (int i = 1; i < num_images; i++) {
+        Mat cur_img = images[i];
+        Mat H = prev_H * homographies[i-1];
+        H = H/H.at<float>(2,2); // normalze
+        Mat stitch_img = stitchImages(prev_img, cur_img, mask1, H, prev_H);
+        string output_name = "../output/stitch_" + to_string(i) + ".jpg";
+        imwrite(output_name, stitch_img*255);
+        prev_img = stitch_img;
+    }
+    displayImg(prev_img);
+    imwrite("../output/panorama.jpg", prev_img*255);
+    return 0;
+}
+
+
+Mat computeHomography(string im1_name, string im2_name, BriefResult brief_result1, BriefResult brief_result2) {
     MatchResult match = briefMatch(brief_result1.descriptors, brief_result2.descriptors);
     // plotMatches(im1_name, im2_name, brief_result1.keypoints, brief_result2.keypoints, match);
-
     vector<Point> pts1;
     pts1.reserve(match.indices1.size());
     vector<Point> pts2;
@@ -65,24 +109,9 @@ int main(int argc, char** argv) {
         pts1.push_back(brief_result1.keypoints[idx1]);
         pts2.push_back(brief_result2.keypoints[idx2]);
     }
-
-//    float H_values[9] = {0.6566, -0.0373, 108.9691, -0.0793, 0.8724, -4.7466, -0.0012, -0.0001, 1.0000};
-//    Mat H = Mat(3, 3, CV_32F, H_values);
-
-    // Calculate Homography and warp image
     Mat H = findHomography(pts2, pts1, RANSAC, 4.0);
     H.convertTo(H,CV_32F);
-    stitchImages(im1, im2, H);
-    return 0;
-}
-
-void printMatrix(Mat& m) {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            printf("%f ", m.at<float>(i,j));
-        }
-        cout << endl;
-    }
+    return H;
 }
 
 void plotMatches(string im1_name, string im2_name, vector<Point>& pts1, vector<Point>& pts2, MatchResult& match) {
@@ -132,9 +161,7 @@ void printImage(float* img, int h, int w) {
     }
 }
 
-void displayImg(float* img_ptr, int h, int w) {
-//  normalize(img_ptr, h, w);
-    Mat im (h, w, CV_32F, img_ptr);
+void displayImg(Mat& im) {
     namedWindow( "Display window", WINDOW_AUTOSIZE ); // Create a window for display.
     imshow( "Display window", im);                // Show our image inside it.
     waitKey(0);

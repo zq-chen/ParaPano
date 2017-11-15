@@ -51,7 +51,7 @@ void convertImg2Float(Mat& im) {
     im = im / 255;
 }
 
-void stitchImages(Mat& im1, Mat& im2, Mat& H) {
+Mat stitchImages(Mat& im1, Mat& im2, Mat& mask1, Mat& H, Mat& prev_H) {
 
     Mat im2_warped;
     vector<Point2d> im2_corners, im2_corners_warped;
@@ -71,26 +71,25 @@ void stitchImages(Mat& im1, Mat& im2, Mat& H) {
     int shift_height = abs(im2_corners_warped[1].y);
 
     Mat M = getTranslationMatrix(0, shift_height);
-    Mat mask1 = creatMask(im1);
     Mat mask2 = creatMask(im2);
-    warpPerspective(mask1, mask1, M, Size(width, height));
-    warpPerspective(mask2, mask2, M*H, Size(width, height));
-    warpPerspective(im1, im1, M, Size(width, height));
-    warpPerspective(im2, im2_warped, M*H, Size(width, height));
 
-    convertImg2Float(im1);
-    convertImg2Float(im2_warped);
+    Mat transform_matrix = M*H;
+    prev_H = transform_matrix;
+    warpPerspective(mask1, mask1, M, Size(width, height));
+    warpPerspective(mask2, mask2, transform_matrix, Size(width, height));
+    warpPerspective(im1, im1, M, Size(width, height));
+    warpPerspective(im2, im2_warped, transform_matrix, Size(width, height));
 
     Mat bim1, bim2;
     multiply(im1, mask1, bim1);
     multiply(im2_warped, mask2, bim2);
-    Mat panoImg;
-    divide(bim1 + bim2, mask1 + mask2, panoImg);
+    Mat stitch_img;
+    divide(bim1 + bim2, mask1 + mask2, stitch_img);
 
-    namedWindow( "Display window", WINDOW_AUTOSIZE ); // Create a window for display.
-    imshow( "Display window", panoImg);              // Show our image inside it.
-    waitKey(0);
-    imwrite("../output/panorama.jpg", panoImg);
+    // update mask1
+    mask1 = mask1 + mask2;
+
+    return stitch_img;
 }
 
 Mat creatMask(Mat& im) {
