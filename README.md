@@ -1,6 +1,6 @@
 # ParaPano
 
-Parallel image stitching using OpenMP.
+Parallel image stitching using CUDA.
 
 ## Summary
 
@@ -10,7 +10,16 @@ produce a panorama. We will compare the speedup and quality of our parallel algo
 ## Progress
 
 We have finished the sequential implementation of the image stitching program and obtained satisfactory results with
-a few test images. The program consists of several stages:
+a few test images. Some output examples of our program are presented here:
+
+<img src="https://user-images.githubusercontent.com/16803685/33004052-83c71a2a-cd8c-11e7-8a25-9c805f4a500f.png" alt="img0" width="800" align="middle" />
+
+<img src="https://user-images.githubusercontent.com/16803685/33004054-8af269f8-cd8c-11e7-9255-c1e12e2e1d84.png" alt="img0" width="800" align="middle" />
+
+<img src="https://user-images.githubusercontent.com/16803685/33004058-93a359b8-cd8c-11e7-9d2e-b4e1fd1f35a9.png" alt="img0" width="800" align="middle" />
+
+
+The program consists of several stages:
 
 1) Convolve a set of Gaussian filters on the image.
 
@@ -62,7 +71,7 @@ adjacent images and thus can be done in parallel for every pair of images.
 
 ## Issues
 
-The program performs differently when the size of images vary. The results are more accurate when the images are
+The program performs differently when the size of images varies. The results are more accurate when the images are
 small. We observed significantly better results if we shrinked the input images. This is because there are
 fewer key points and thus less noise in small images, the homography is usually more accurate. We can experiment with
 different parameter configurations, such as the threshold to detect key point, in order to achieve better results with
@@ -115,8 +124,6 @@ via a video. In addition, we will show the speedup graphs of our parallel algori
 
 
 ## Resources
-
-We will build the program from scratch in C++. We have already implemented the sequential version of the algorithm (using BRIEF descriptor) in MATLAB.
 
 We follow the guidance from the following papers:
 
