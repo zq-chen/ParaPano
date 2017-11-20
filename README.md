@@ -25,9 +25,9 @@ The program consists of several stages:
 
 2) Build a Difference of Gaussian (GoD) pyramid.
 
-3) Detects key points.
+3) Detect key points.
 
-4) Computes Brief descriptors for key point.
+4) Compute Brief descriptors for key point.
 
 5) Match key points in two images.
 
