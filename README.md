@@ -80,8 +80,8 @@ large images.
 ## Platform Change
 
 We decided to switch from latedays machine to GHC machines, and use CUDA to parallelize the program. We have experienced
-several difficulties with compiling and linking the program with OpenCV on latedays. Fortunately, we successfuly
-compiled and ran our program on the GHC machine. Apart from the convenience of using OpenCV, we believed that the desgin
+several difficulties with compiling and linking the program with OpenCV on latedays. Fortunately, we successfully
+compiled and ran our program on the GHC machine. Apart from the convenience of using OpenCV, we believed that the design
  of CUDA suits naturally with the image processing, especially when the parallelism is done in pixel level.
 
 ## Schedule
