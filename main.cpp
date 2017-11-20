@@ -35,11 +35,11 @@ bool ReadImage(string im_name, Mat& im) {
 
 int main(int argc, char** argv) {
 
-    int num_images = 4;
-    // string im_names[2] = {"../data/building_1.jpg", "../data/building_2.jpg"};
+    int num_images = 2;
+    string im_names[2] = {"../data/incline_L.png", "../data/incline_R.png"};
 
-    string im_names[4] = {"../data/building_1.jpg", "../data/building_2.jpg", "../data/building_3.jpg",
-            "../data/building_4.jpg"};
+//    string im_names[4] = {"../data/building_1.jpg", "../data/building_2.jpg", "../data/building_3.jpg",
+//            "../data/building_4.jpg"};
 //    int num_images = argc - 1;
 //    string im_names[num_images];
 

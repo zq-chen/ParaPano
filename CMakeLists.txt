@@ -1,10 +1,18 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 project(ParaPano)
-
 find_package(OpenCV REQUIRED)
+find_package(CUDA REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(SOURCE_FILES main.cpp filter.cpp keyPointDetector.cpp brief.cpp stitcher.cpp)
-add_executable(ParaPano ${SOURCE_FILES})
+set(CUDA_ARCH "-arch=sm_50" CACHE STRING "Value of the NVCC -arch option.")
+SET(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_ARCH}")
 
-include_directories(${OpenCV_INCLUDE_DIRS})
-target_link_libraries(ParaPano ${OpenCV_LIBS})
+file(GLOB  cu  *.cu *.cpp)
+include_directories(${OpenCV_INCLUDE_DIRS})  
+include_directories(${CUDA_INCLUDE_DIRS})
+include_directories(include)
+
+#set(SOURCE_FILES main.cpp filter.cpp keyPointDetector.cpp brief.cpp stitcher.cpp)
+CUDA_ADD_EXECUTABLE(ParaPano main.cpp filter.cpp keyPointDetector.cpp brief.cpp stitcher.cpp)
+#add_executable(ParaPano ${SOURCE_FILES})
+
+target_link_libraries(ParaPano ${CUDA_LIBRARIES} ${OpenCV_LIBS})
