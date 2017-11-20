@@ -69,6 +69,9 @@ Mat stitchImages(Mat& im1, Mat& im2, Mat& mask1, Mat& H, Mat& prev_H) {
     int height = max(abs(im2_corners_warped[0].y - im2_corners_warped[2].y),
                      abs(im2_corners_warped[1].y - im2_corners_warped[3].y));
     int shift_height = abs(im2_corners_warped[1].y);
+//    int width = 2000;
+//    int height = 1000;
+//    int shift_height = 0;
 
     Mat M = getTranslationMatrix(0, shift_height);
     Mat mask2 = creatMask(im2);

@@ -29,12 +29,12 @@ float** createDoGPyramid(float** gaussian_pyramid, int h, int w, int num_levels)
     return dog_pyramid;
 }
 
-//  dx(i) = (I(i+1)-I(i-1))/2
 
 inline bool inBound(int r, int c, int h, int w) {
     return r >= 0 && r < h && c >= 0 && c < w;
 }
 
+//  dx(i) = (I(i+1)-I(i-1))/2
 float computeDx(float* img, int h, int w, int row, int col) {
     if (!inBound(row, col, h, w)) {
         return 0;

@@ -27,7 +27,10 @@ struct MatchResult {
     std::vector<int> indices2;
 };
 
-BriefResult BriefLite(std::string im_name, cv::Point* compareA, cv::Point* compareB);
+//BriefResult BriefLite(std::string im_name, cv::Point* compareA, cv::Point* compareB);
 MatchResult briefMatch(std::vector<Descriptor>& desc1, std::vector<Descriptor>& desc2);
+BriefResult computeBrief(float* im, int h, int w, std::vector<cv::Point>& keypoints, cv::Point* compareA, cv::Point* compareB);
+void outputImageWithKeypoints(std::string im_path, cv::Mat& img, std::vector<cv::Point>& keypoints);
+void normalize_img(float* img_ptr, int h, int w);
 
 #endif //PARAPANO_BRIEF_H

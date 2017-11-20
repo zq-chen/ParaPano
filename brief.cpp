@@ -8,12 +8,12 @@
 #include <iostream>
 #include <string>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <limits>
-#include "filter.h"
-#include "keyPointDetector.h"
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <math.h>
+//#include <limits>
+//#include "filter.h"
+//#include "keyPointDetector.h"
 #include "brief.h"
 
 using namespace cv;
@@ -40,7 +40,7 @@ float* getPatch(float* im, int begin_row, int begin_col, int w) {
     return patch;
 }
 
-void normalize(float* img_ptr, int h, int w) {
+void normalize_img(float* img_ptr, int h, int w) {
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
             img_ptr[i * w + j] /= 255.0;
@@ -88,12 +88,6 @@ void outputDoGImages(float** dog_pyramid, int h, int w, int num_levels) {
     cout << "Output DoG Images" << endl;
 }
 
-void cleanPointerArray(float** arr, int num_levels) {
-    for (int i = 0; i < num_levels; i++) {
-        delete[] arr[i];
-    }
-    delete[] arr;
-}
 
 Descriptor computeKeypointDescriptor(float* patch, Point* compareA, Point* compareB) {
     Descriptor dscr;
@@ -128,50 +122,6 @@ BriefResult computeBrief(float* im, int h, int w, vector<Point>& keypoints, Poin
     return BriefResult(valid_keypoints, descriptors);
 }
 
-BriefResult BriefLite(string im_name, Point* compareA, Point* compareB) {
-
-    cout << "Compute BRIEF for image " + im_name << endl;
-
-    Mat im_color = imread(im_name, IMREAD_COLOR);
-
-    // Load as grayscale and convert to float
-    Mat im_gray = imread(im_name, IMREAD_GRAYSCALE);
-    Mat im;
-    im_gray.convertTo(im, CV_32F);
-    int h = im.rows;
-    int w = im.cols;
-    float *im1_ptr = (float*) im.ptr<float>();
-    normalize(im1_ptr, h, w);
-
-    // parameters for generating Gaussian Pyramid
-    float sigma0 = 1.0;
-    float k = sqrt(2);
-    int num_levels = 7;
-    int levels[7] = {-1, 0, 1, 2, 3, 4, 5};
-
-    float** gaussian_pyramid = createGaussianPyramid(im1_ptr, h, w, sigma0, k, levels, num_levels);
-    float** dog_pyramid = createDoGPyramid(gaussian_pyramid, h, w, num_levels);
-    // outputGaussianImages(gaussian_pyramid, h, w, num_levels);
-    // outputDoGImages(dog_pyramid, h, w, num_levels);
-    cout << "Created DoG Pyramid" << endl;
-
-    // Detect key points
-    float th_contrast = 0.03;
-    float th_r = 12;
-    vector<Point> keypoints = getLocalExtrema(dog_pyramid, num_levels - 1, h, w, th_contrast, th_r);
-    printf("Detected %lu key points\n", keypoints.size());
-
-    outputImageWithKeypoints(im_name, im_color, keypoints);
-
-    BriefResult brief_result = computeBrief(gaussian_pyramid[0], h, w, keypoints, compareA, compareB);
-
-    // clean up
-    cleanPointerArray(gaussian_pyramid, num_levels);
-    cleanPointerArray(dog_pyramid, num_levels - 1);
-    cout << "Cleaned up Memory" << endl;
-
-    return brief_result;
-}
 
 int hammingDistance(Descriptor& d1, Descriptor& d2) {
     int dist = 0;
