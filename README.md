@@ -12,19 +12,19 @@ produce a panorama. We will compare the speedup and quality of our parallel algo
 We have finished the sequential implementation of the image stitching program and obtained satisfactory results with
 a few test images. The program consists of several stages:
 
-**1) Convolve a set of Gaussian filters on the image.
+1) Convolve a set of Gaussian filters on the image.
 
-**2) Build a Difference of Gaussian (GoD) pyramid.
+2) Build a Difference of Gaussian (GoD) pyramid.
 
-**3) Detects key points.
+3) Detects key points.
 
-**4) Computes Brief descriptors for key point.
+4) Computes Brief descriptors for key point.
 
-**5) Match key points in two images.
+5) Match key points in two images.
 
-**6) Compute homography matrix that warps one image to another.
+6) Compute homography matrix that warps one image to another.
 
-**7) Warp images and stitch them together to produce the panorama.
+7) Warp images and stitch them together to produce the panorama.
 
 We used fine-grained timer to measure the computation time of each stage and identified filter convolution
 and key point matching as the major performance bottleneck. The computation time of stitching two images
@@ -84,11 +84,11 @@ the speedup of the parallel program.
 
 Below is an updated schedule for the coming weeks
 
-* ** 11.20--11.22**
+* **11.20--11.22**
 
 Optimize the algorithm for filter convolution and key point matching. (Xin Xu)
 
-* ** 11.23--11.26**
+* **11.23--11.26**
 
 Start using CUDA to parallelize the program. (Zhuoqun Chen)
 
