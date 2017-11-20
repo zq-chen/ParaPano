@@ -11,6 +11,7 @@ produce a panorama. We will compare the speedup and quality of our parallel algo
 
 We have finished the sequential implementation of the image stitching program and obtained satisfactory results with
 a few test images. The program consists of several stages:
+
 **1) Convolve a set of Gaussian filters on the image.
 
 **2) Build a Difference of Gaussian (GoD) pyramid.
@@ -83,27 +84,27 @@ the speedup of the parallel program.
 
 Below is an updated schedule for the coming weeks
 
-*** 11.20--11.22**
+* ** 11.20--11.22**
 
 Optimize the algorithm for filter convolution and key point matching. (Xin Xu)
 
-*** 11.23--11.26**
+* ** 11.23--11.26**
 
 Start using CUDA to parallelize the program. (Zhuoqun Chen)
 
-***11.20--11.23**
+* **11.20--11.23**
 
 Achieve a reasonable speedup with the parallel program. (Zhuoqun Chen)
 
-***11.24--11.26**
+* **11.24--11.26**
 
 Iterate on the parallel version and optimize performance. (Xin Xu)
 
-***12.4--12.8**
+* **12.4--12.8**
 
 Finish parallelizing the program and generate results. (Xin Xu, Zhuoqun Chen)
 
-***12.9-12.12**
+* **12.9-12.12**
 
 Write final report. Prepare video and poster for demo. (Xin Xu, Zhuoqun Chen)
 
