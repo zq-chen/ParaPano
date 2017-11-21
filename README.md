@@ -7,6 +7,8 @@ Parallel image stitching using CUDA.
 We are going to parallelize an image stitching program that aligns a set of images and stitch them together to
 produce a panorama. We will compare the speedup and quality of our parallel algorithm with the sequential version.
 
+Project proposal: zq-chen.github.io/ParaPano/Proposal
+
 ## Progress
 
 We have finished the sequential implementation of the image stitching program and obtained satisfactory results with
@@ -61,7 +63,7 @@ Another way to do the convolution is to formulate the task as matrix multiplicat
 We expect matrix multiplication to be more efficient but more memory consuming.
 
 The key point matching uses the hamming distance between two descriptors as the distance metric. For each key point in
-image 2, the algorithm finds its closet key point in image 1. Currently, the descriptor is represented as a vector of
+image 2, the algorithm finds its closest key point in image 1. Currently, the descriptor is represented as a vector of
 integers, so comparing two descriptors needs to iterate over the vector. We can also represent the descriptor as a bit
 array and computing hamming distance between integers should be faster.
 
