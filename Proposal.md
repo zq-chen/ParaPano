@@ -1,6 +1,8 @@
-# ParaPano
+# ParaPano - Project Proposal
 
 Parallel image stitching using OpenMP.
+
+See <a href="https://zq-chen.github.io/ParaPano/">Milestone Report</a>
 
 ## Summary
 
