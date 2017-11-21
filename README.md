@@ -7,7 +7,7 @@ Parallel image stitching using CUDA.
 We are going to parallelize an image stitching program that aligns a set of images and stitch them together to
 produce a panorama. We will compare the speedup and quality of our parallel algorithm with the sequential version.
 
-Project proposal: zq-chen.github.io/ParaPano/Proposal
+See <a href="https://zq-chen.github.io/ParaPano/Proposal">Project proposal</a>
 
 ## Progress
 
