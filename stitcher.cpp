@@ -1,7 +1,7 @@
 //
 // Created by Xin Xu on 11/15/17.
 //
-#include "opencv2/opencv.hpp"
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
@@ -13,10 +13,9 @@
 #include "stitcher.h"
 
 using namespace cv;
-using namespace std;
 
-string type2str(int type) {
-    string r;
+std::string type2str(int type) {
+    std::string r;
     uchar depth = type & CV_MAT_DEPTH_MASK;
     uchar chans = 1 + (type >> CV_CN_SHIFT);
     switch ( depth ) {
@@ -30,12 +29,12 @@ string type2str(int type) {
         default:     r = "User"; break;
     }
     r += "C";
-    r += (chans+'0');
+    r += (chans + '0');
     return r;
 }
 
 void findType(Mat& M) {
-    string ty =  type2str( M.type() );
+    std::string ty =  type2str( M.type() );
     printf("Matrix: %s %dx%d \n", ty.c_str(), M.cols, M.rows );
 }
 
@@ -54,7 +53,7 @@ void convertImg2Float(Mat& im) {
 Mat stitchImages(Mat& im1, Mat& im2, Mat& mask1, Mat& H, Mat& prev_H) {
 
     Mat im2_warped;
-    vector<Point2d> im2_corners, im2_corners_warped;
+    std::vector<Point2d> im2_corners, im2_corners_warped;
     im2_corners.reserve(4);
     int h2 = im2.rows;
     int w2 = im2.cols;
@@ -106,7 +105,7 @@ Mat creatMask(Mat& im) {
     minMaxLoc(im, &min, &max);
     mask /= max;
 
-    vector<Mat> singleChannels;
+    std::vector<Mat> singleChannels;
     singleChannels.push_back(mask);
     singleChannels.push_back(mask);
     singleChannels.push_back(mask);

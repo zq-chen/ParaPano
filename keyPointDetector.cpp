@@ -6,14 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <vector>
 #include "filter.h"
 #include "keyPointDetector.h"
 
-using namespace std;
 using namespace cv;
 
-float** createDoGPyramid(float** gaussian_pyramid, int h, int w, int num_levels) {
+float** createDoGPyramid(float** gaussian_pyramid, int h, int w,
+                         int num_levels) {
+
     float** dog_pyramid = new float*[num_levels-1];
     for (int k = 0; k < num_levels - 1; k++) {
         float* dog = new float[h*w];
@@ -73,11 +73,11 @@ float computePrincipalCurvature(float* img, int h, int w, int row, int col) {
     float det = dxx * dyy - dxy * dyx;
     float trace = dxx + dyy;
     return trace * trace / det;
-
 }
 
 
-void setLocalExtremaBoolean(float val, float temp_val, bool& isLocalMin, bool& isLocalMax) {
+void setLocalExtremaBoolean(float val, float temp_val, bool& isLocalMin,
+                            bool& isLocalMax) {
     if (temp_val > val) {
         isLocalMax = false;
     } else if (temp_val < val) {
@@ -86,7 +86,9 @@ void setLocalExtremaBoolean(float val, float temp_val, bool& isLocalMin, bool& i
 }
 
 // check neighborhood with size patch_size * patch_size
-bool isLocalExtrema(float* dog, float* dog_prev, float* dog_next, int h, int w, int row, int col, int patch_size) {
+bool isLocalExtrema(float* dog, float* dog_prev, float* dog_next, int h, int w,
+                    int row, int col, int patch_size) {
+
     int psize = patch_size/2;
     float val = dog[row * w + col];
     bool isLocalMin = true;
@@ -96,23 +98,28 @@ bool isLocalExtrema(float* dog, float* dog_prev, float* dog_next, int h, int w, 
             int r = row + i;
             int c = col + j;
             if (inBound(r, c, h, w)) {
-                setLocalExtremaBoolean(val, dog[r * w + c], isLocalMin, isLocalMax);
+                setLocalExtremaBoolean(val, dog[r * w + c],
+                                       isLocalMin, isLocalMax);
             }
         }
     }
 
     if (dog_prev != NULL) {
-        setLocalExtremaBoolean(val, dog_prev[row * w + col], isLocalMin, isLocalMax);
+        setLocalExtremaBoolean(val, dog_prev[row * w + col],
+                               isLocalMin, isLocalMax);
     }
 
     if (dog_next != NULL) {
-        setLocalExtremaBoolean(val,  dog_next[row * w + col], isLocalMin, isLocalMax);
+        setLocalExtremaBoolean(val, dog_next[row * w + col],
+                               isLocalMin, isLocalMax);
     }
     return isLocalMin || isLocalMax;
 }
 
-vector<Point> getLocalExtrema(float** dog_pyramid, int num_levels, int h, int w, float th_contrast, float th_r) {
-    vector<Point> keypoints;
+std::vector<Point> getLocalExtrema(float** dog_pyramid, int num_levels, int h,
+                                   int w, float th_contrast, float th_r) {
+
+    std::vector<Point> keypoints;
     int patch_size = 3;
     for (int i = 0; i < h; i++) { // row
         for (int j = 0; j < w; j++) { // col
@@ -130,13 +137,15 @@ vector<Point> getLocalExtrema(float** dog_pyramid, int num_levels, int h, int w,
                 }
 
                 // is local min or max
-                bool is_local_extrema = isLocalExtrema(dog, dog_prev, dog_next, h, w, i, j, patch_size);
+                bool is_local_extrema = isLocalExtrema(dog, dog_prev, dog_next,
+                                                       h, w, i, j, patch_size);
                 if (!is_local_extrema) {
                     continue;
                 }
 
                 // remove edge-like points - large principal curvature
-                float principal_curvature = computePrincipalCurvature(dog, h, w, i, j);
+                float principal_curvature = computePrincipalCurvature(dog, h, w,
+                                                                      i, j);
                 if (principal_curvature > th_r) {
                     continue;
                 }

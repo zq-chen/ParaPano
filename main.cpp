@@ -10,11 +10,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <limits>
+
 #include "filter.h"
 #include "keyPointDetector.h"
 #include "brief.h"
@@ -22,12 +22,19 @@
 
 
 using namespace cv;
-using namespace std;
 
-int readTestPattern(Point*& compareA, Point*& compareB, string test_pattern_filename);
-void plotMatches(string im1_name, string im2_name, vector<Point>& pts1, vector<Point>& pts2, MatchResult& match);
-Mat computeHomography(string im1_name, string im2_name, BriefResult brief_result1, BriefResult brief_result2);
-BriefResult BriefLite(string im_name, Point* compareA, Point* compareB);
+int readTestPattern(Point*& compareA, Point*& compareB,
+                    std::string test_pattern_filename);
+
+void plotMatches(std::string im1_name, std::string im2_name, 
+                 std::vector<Point>& pts1, std::vector<Point>& pts2,
+                 MatchResult& match);
+
+Mat computeHomography(std::string im1_name, std::string im2_name, 
+                      BriefResult brief_result1, BriefResult brief_result2);
+
+BriefResult BriefLite(std::string im_name, Point* compareA, Point* compareB);
+
 void displayImg(Mat& im);
 
 clock_t gaussian_pyramid_start;
@@ -56,10 +63,11 @@ static inline double get_time_elapsed(clock_t& start)
     return (clock() - start)/(double)CLOCKS_PER_SEC;
 }
 
-bool ReadImage(string im_name, Mat& im) {
+bool ReadImage(std::string im_name, Mat& im) {
     im = imread(im_name, IMREAD_COLOR);
     if(!im.data ) {
-        cout <<  "Could not open or find the image " + im_name << endl ;
+        std::cout <<  "Could not open or find the image " +
+                        im_name << std::endl ;
         return false;
     }
     return true;
@@ -75,12 +83,13 @@ void cleanPointerArray(float** arr, int num_levels) {
 int main(int argc, char** argv) {
 
     int num_images = 2;
-    string im_names[2] = {"../data/incline_L.png", "../data/incline_R.png"};
+    std::string im_names[2] = {"../data/incline_L.png","../data/incline_R.png"};
 
-//    string im_names[4] = {"../data/mountain1.jpg", "../data/mountain2.jpg", "../data/mountain3.jpg", "../data/mountain4.jpg"};
+//    string im_names[4] = {"../data/mountain1.jpg", "../data/mountain2.jpg", 
+//    "../data/mountain3.jpg", "../data/mountain4.jpg"};
 //    int num_images = 4;
 
-    vector<Mat> images;
+    std::vector<Mat> images;
     images.reserve(num_images);
     for (int i = 0; i < num_images; i++) {
         Mat im;
@@ -94,21 +103,22 @@ int main(int argc, char** argv) {
     // read in test pattern points to compute BRIEF
     Point* compareA = NULL;
     Point* compareB = NULL;
-    string test_pattern_filename = "../data/testPattern.txt";
+    std::string test_pattern_filename = "../data/testPattern.txt";
     readTestPattern(compareA, compareB, test_pattern_filename);
 
     // compute BRIEF for keypoints
-    vector<BriefResult> brief_results;
+    std::vector<BriefResult> brief_results;
     brief_results.reserve(num_images);
     for (int i = 0; i < num_images; i++) {
         BriefResult brief_result = BriefLite(im_names[i], compareA, compareB);
         brief_results.push_back(brief_result);
     }
 
-    vector<Mat> homographies;
+    std::vector<Mat> homographies;
     homographies.reserve(num_images-1);
     for (int i = 0; i < num_images-1; i++) {
-        Mat H = computeHomography(im_names[i], im_names[i+1], brief_results[i], brief_results[i+1]);
+        Mat H = computeHomography(im_names[i], im_names[i+1], brief_results[i],
+                                  brief_results[i+1]);
         homographies.push_back(H);
     }
 
@@ -123,13 +133,14 @@ int main(int argc, char** argv) {
         Mat stitch_img = stitchImages(prev_img, images[i], mask1, H, prev_H);
         prev_img = stitch_img;
 
-        string output_name = "../output/stitch_" + to_string(i) + ".jpg";
+        std::string output_name = "../output/stitch_" +
+                                    std::to_string(i) + ".jpg";
         imwrite(output_name, stitch_img*255);
 
     }
     stitching_elapsed = get_time_elapsed(stitching_start);
 
-    // displayImg(prev_img);
+    displayImg(prev_img);
     imwrite("../output/panorama.jpg", prev_img*255);
 
     printf("Compute Gaussian Pyramid: %.2f\n", gaussian_pyramid_elapsed);
@@ -144,14 +155,17 @@ int main(int argc, char** argv) {
 }
 
 
-Mat computeHomography(string im1_name, string im2_name, BriefResult brief_result1, BriefResult brief_result2) {
+Mat computeHomography(std::string im1_name, std::string im2_name,
+                      BriefResult brief_result1, BriefResult brief_result2) {
 
     find_match_start = clock();
-    MatchResult match = briefMatch(brief_result1.descriptors, brief_result2.descriptors);
-    // plotMatches(im1_name, im2_name, brief_result1.keypoints, brief_result2.keypoints, match);
-    vector<Point> pts1;
+    MatchResult match = briefMatch(brief_result1.descriptors,
+                                   brief_result2.descriptors);
+    // plotMatches(im1_name, im2_name, brief_result1.keypoints, 
+    //             brief_result2.keypoints, match);
+    std::vector<Point> pts1;
     pts1.reserve(match.indices1.size());
-    vector<Point> pts2;
+    std::vector<Point> pts2;
     pts2.reserve(match.indices2.size());
     for (int i = 0; i < match.indices1.size(); i++) {
         int idx1 = match.indices1[i];
@@ -171,9 +185,9 @@ Mat computeHomography(string im1_name, string im2_name, BriefResult brief_result
 }
 
 
-BriefResult BriefLite(string im_name, Point* compareA, Point* compareB) {
+BriefResult BriefLite(std::string im_name, Point* compareA, Point* compareB) {
 
-    cout << "Compute BRIEF for image " + im_name << endl;
+    std::cout << "Compute BRIEF for image " + im_name << std::endl;
 
     Mat im_color = imread(im_name, IMREAD_COLOR);
 
@@ -193,7 +207,8 @@ BriefResult BriefLite(string im_name, Point* compareA, Point* compareB) {
     int levels[7] = {-1, 0, 1, 2, 3, 4, 5};
 
     gaussian_pyramid_start = clock();
-    float** gaussian_pyramid = createGaussianPyramid(im1_ptr, h, w, sigma0, k, levels, num_levels);
+    float** gaussian_pyramid = createGaussianPyramid(im1_ptr, h, w, sigma0, k,
+                                                     levels, num_levels);
     gaussian_pyramid_elapsed += get_time_elapsed(gaussian_pyramid_start);
 
 
@@ -201,32 +216,37 @@ BriefResult BriefLite(string im_name, Point* compareA, Point* compareB) {
     float** dog_pyramid = createDoGPyramid(gaussian_pyramid, h, w, num_levels);
     // outputGaussianImages(gaussian_pyramid, h, w, num_levels);
     // outputDoGImages(dog_pyramid, h, w, num_levels);
-    cout << "Created DoG Pyramid" << endl;
+    std::cout << "Created DoG Pyramid" << std::endl;
     dog_pyramid_elapsed += get_time_elapsed(dog_pyramid_start);
 
     keypoint_detection_start = clock();
     // Detect key points
     float th_contrast = 0.03;
     float th_r = 12;
-    vector<Point> keypoints = getLocalExtrema(dog_pyramid, num_levels - 1, h, w, th_contrast, th_r);
+    std::vector<Point> keypoints = getLocalExtrema(dog_pyramid, num_levels - 1,
+                                                   h, w, th_contrast, th_r);
     printf("Detected %lu key points\n", keypoints.size());
     keypoint_detection_elapsed += get_time_elapsed(keypoint_detection_start);
 
     outputImageWithKeypoints(im_name, im_color, keypoints);
 
     compute_brief_start = clock();
-    BriefResult brief_result = computeBrief(gaussian_pyramid[0], h, w, keypoints, compareA, compareB);
+    BriefResult brief_result = computeBrief(gaussian_pyramid[0], h, w, 
+                                            keypoints, compareA, compareB);
     compute_brief_elapsed += get_time_elapsed(compute_brief_start);
 
     // clean up
     cleanPointerArray(gaussian_pyramid, num_levels);
     cleanPointerArray(dog_pyramid, num_levels - 1);
-    cout << "Cleaned up Memory" << endl;
+    std::cout << "Cleaned up Memory" << std::endl;
 
     return brief_result;
 }
 
-void plotMatches(string im1_name, string im2_name, vector<Point>& pts1, vector<Point>& pts2, MatchResult& match) {
+void plotMatches(std::string im1_name, std::string im2_name,
+                 std::vector<Point>& pts1, std::vector<Point>& pts2,
+                 MatchResult& match) {
+
     Mat im1 = imread(im1_name, IMREAD_COLOR);
     Mat im2 = imread(im2_name, IMREAD_COLOR);
     int h1 = im1.rows;
@@ -245,12 +265,14 @@ void plotMatches(string im1_name, string im2_name, vector<Point>& pts1, vector<P
         line(grid, p1, Point(p2.x+w1, p2.y), Scalar(0, 0, 255));
     }
 
-    cout << "Output Match Image" << endl;
+    std::cout << "Output Match Image" << std::endl;
     imwrite("../output/match.jpg", grid);
 }
 
-int readTestPattern(Point*& compareA, Point*& compareB, string test_pattern_filename) {
-    ifstream infile(test_pattern_filename);
+int readTestPattern(Point*& compareA, Point*& compareB,
+                    std::string test_pattern_filename) {
+
+    std::ifstream infile(test_pattern_filename);
     int num_test_pairs;
     infile >> num_test_pairs;
     compareA = new Point[num_test_pairs];
@@ -267,14 +289,15 @@ int readTestPattern(Point*& compareA, Point*& compareB, string test_pattern_file
 void printImage(float* img, int h, int w) {
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
-            cout<<img[i * w + j]<<" ";
+            std::cout << img[i * w + j] << " ";
         }
-        cout<<endl;
+        std::cout << std::endl;
     }
 }
 
 void displayImg(Mat& im) {
-    namedWindow( "Display window", WINDOW_AUTOSIZE ); // Create a window for display.
+    // Create a window for display.
+    namedWindow( "Display window", WINDOW_AUTOSIZE );
     imshow( "Display window", im);                // Show our image inside it.
     waitKey(0);
 }
