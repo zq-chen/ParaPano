@@ -9,6 +9,7 @@
 #include "brief.h"
 
 using namespace cv;
+using namespace std;
 
 inline bool isInBound(int r, int c, int h, int w) {
     return r >= 0 && r < h && c >= 0 && c < w;
@@ -94,7 +95,7 @@ Descriptor computeKeypointDescriptor(float* patch, Point* compareA,
         int y2 = compareB[i].y;
         float a_val = patch[y1 * PATCH_SIZE + x1];
         float b_val = patch[y2 * PATCH_SIZE + x2];
-        dscr.values[i] = a_val < b_val? 1 : 0;
+        dscr.values.set(i, a_val < b_val);
     }
     return dscr;
 }
@@ -112,7 +113,7 @@ BriefResult computeBrief(float* im, int h, int w, std::vector<Point>& keypoints,
         if (hasValidPatch(h, w, row, col)) {
             int r = PATCH_SIZE / 2;
             float* patch = getPatch(im, row - r, col - r, w);
-            descriptors.push_back(computeKeypointDescriptor(patch, compareA, 
+            descriptors.push_back(computeKeypointDescriptor(patch, compareA,
                                                             compareB));
             valid_keypoints.push_back(*it);
             delete[] patch;
@@ -123,13 +124,7 @@ BriefResult computeBrief(float* im, int h, int w, std::vector<Point>& keypoints,
 
 
 int hammingDistance(Descriptor& d1, Descriptor& d2) {
-    int dist = 0;
-    for (int i = 0; i < NUM_OF_TEST_PAIRS; i++) {
-        if (d1.values[i] != d2.values[i]) {
-            dist += 1;
-        }
-    }
-    return dist;
+    return (d1.values ^ d2.values).count();
 }
 
 float findBestMatch(std::vector<Descriptor>& desc, Descriptor& d,

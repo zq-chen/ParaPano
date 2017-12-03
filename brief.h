@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <bitset>
 #include <string>
 #include <vector>
 #include <opencv2/core/core.hpp>
@@ -12,7 +13,7 @@
 #define NUM_OF_TEST_PAIRS 256
 
 struct Descriptor {
-    int values[NUM_OF_TEST_PAIRS];
+	std::bitset<NUM_OF_TEST_PAIRS> values;
 };
 
 struct BriefResult {
