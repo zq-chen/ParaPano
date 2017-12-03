@@ -12,7 +12,7 @@ include_directories(${CUDA_INCLUDE_DIRS})
 include_directories(include)
 
 #set(SOURCE_FILES main.cpp filter.cpp keyPointDetector.cpp brief.cpp stitcher.cpp)
-CUDA_ADD_EXECUTABLE(ParaPano main.cpp filter.cpp keyPointDetector.cpp brief.cpp stitcher.cpp)
+CUDA_ADD_EXECUTABLE(ParaPano main.cpp filter.cpp keyPointDetector.cpp brief.cpp stitcher.cpp Util.cpp)
 #add_executable(ParaPano ${SOURCE_FILES})
 
 target_link_libraries(ParaPano ${CUDA_LIBRARIES} ${OpenCV_LIBS})
