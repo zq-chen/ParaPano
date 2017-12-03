@@ -13,7 +13,7 @@
 #define NUM_OF_TEST_PAIRS 256
 
 struct Descriptor {
-	std::bitset<NUM_OF_TEST_PAIRS> values;
+    std::bitset<NUM_OF_TEST_PAIRS> values;
 };
 
 struct BriefResult {
@@ -31,13 +31,13 @@ struct MatchResult {
 //BriefResult BriefLite(std::string im_name, cv::Point* compareA,
 // cv::Point* compareB);
 MatchResult briefMatch(std::vector<Descriptor>& desc1,
-	                   std::vector<Descriptor>& desc2);
+                       std::vector<Descriptor>& desc2);
 
 BriefResult computeBrief(float* im, int h, int w,
-	                     std::vector<cv::Point>& keypoints, cv::Point* compareA,
-	                     cv::Point* compareB);
+                         std::vector<cv::Point>& keypoints, cv::Point* compareA,
+                         cv::Point* compareB);
 
 void outputImageWithKeypoints(std::string im_path, cv::Mat& img,
-	                          std::vector<cv::Point>& keypoints);
+                              std::vector<cv::Point>& keypoints);
 
 void normalize_img(float* img_ptr, int h, int w);

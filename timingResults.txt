@@ -1,0 +1,17 @@
+Original Sequential:
+Compute Gaussian Pyramid: 21.78
+Compute DoG Pyramid: 0.03
+Detect Keypoints: 0.10
+Compute BRIEF Descriptor: 0.05
+Match keypoint descriptors: 49.55
+Compute Homography: 0.33
+Stitch Images: 0.38
+
+Change descriptor structure to bit_set:
+Compute Gaussian Pyramid: 21.70
+Compute DoG Pyramid: 0.04
+Detect Keypoints: 0.11
+Compute BRIEF Descriptor: 0.10
+Match keypoint descriptors: 1.34
+Compute Homography: 0.38
+Stitch Images: 0.36
