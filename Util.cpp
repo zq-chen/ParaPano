@@ -14,6 +14,7 @@
 #include "filter.h"
 #include "keyPointDetector.h"
 #include "stitcher.h"
+#include "cudaFilter.h"
 
 using namespace cv;
 
@@ -114,6 +115,12 @@ BriefResult Util::BriefLite(std::string im_name, Point* compareA,
     float k = sqrt(2);
     int num_levels = 7;
     int levels[7] = {-1, 0, 1, 2, 3, 4, 5};
+
+    CudaFilterer cudaFilterer;
+    cudaFilterer.setup(im1_ptr, h, w);
+
+    float** gaussian_pyramid_cuda = 
+        cudaFilterer.createGaussianPyramid(sigma0, k, levels, num_levels);
 
     gaussian_pyramid_start = clock();
     float** gaussian_pyramid = createGaussianPyramid(im1_ptr, h, w, sigma0, k,

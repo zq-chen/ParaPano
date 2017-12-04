@@ -17,6 +17,7 @@ using namespace std;
 CudaFilterer::CudaFilterer() {
     gaussian_pyramid = NULL; // result on CPU
     cudaImageData = NULL;
+    cudaGaussianPyramid = NULL;
     imageWidth = 0;
     imageHeight = 0;
     numLevels = 0;
@@ -48,27 +49,29 @@ void printCudaInfo() {
     printf("---------------------------------------------------------\n");
 }
 
-void allocOutputGaussianPyramid(int width, int height, int num_levels) {
+void
+CudaFilterer::allocHostGaussianPyramid(int width, int height, int num_levels) {
     gaussian_pyramid = new float*[num_levels];
     for (int i = 0; i < num_levels; i++) {
         gaussian_pyramid[i] = new float[width * height];
     }
 }
 
-const float**
-CudaFilterer::getGaussianPyramid() {
+void
+CudaFilterer::allocDeviceGaussianPyramid(int width, int height) {
+    cudaMalloc(&cudaGaussianPyramid, sizeof(float) * width * height);
+}
+
+void
+CudaFilterer::getGaussianPyramid(int i) {
 
     // need to copy contents of the rendered image from device memory
     // before we expose the Image object to the caller
 
-    for (int i = 0; i < numLevels; i++) {
-        cudaMemcpy(gaussian_pyramid[i],
-            cudaGaussianPyramid[i],
-            sizeof(float) * imageWidth * imageHeight,
-            cudaMemcpyDeviceToHost);
-    }
-
-    return gaussian_pyramid;
+    cudaMemcpy(gaussian_pyramid[i],
+        cudaGaussianPyramid,
+        sizeof(float) * imageWidth * imageHeight,
+        cudaMemcpyDeviceToHost);
 }
 
 void CudaFilterer::setup(float* img, int h, int w) {
@@ -86,7 +89,7 @@ void CudaFilterer::setup(float* img, int h, int w) {
 
 
 // create a normalized gaussian filter of height h and width w
-float* createGaussianFilter(const int fh, const int fw, float sigma) {
+float* createHostGaussianFilter(const int fh, const int fw, float sigma) {
     float* gaussianFilter = new float[fh * fw];
     float sum = 0.0;
     int centerX = fw/2;
@@ -112,38 +115,48 @@ float* createGaussianFilter(const int fh, const int fw, float sigma) {
 
 
 __global__ void applyGaussianFilter(float* img_ptr, int h, int w, 
-    float* cudaFilter, int fsize, float* output) {
+                                    float* cudaFilter, int fsize) {
 
 }
  
-float** createGaussianPyramid(float sigma0, float k, int* levels, int num_levels) {
+float**
+CudaFilterer::createGaussianPyramid(float sigma0, float k, int* levels, int num_levels) {
 
     numLevels = num_levels;
 
     // allocate host memory
-    allocOutputGaussianPyramid(w, h, num_levels);
+    allocHostGaussianPyramid(imageWidth, imageHeight, num_levels);
+
+    allocDeviceGaussianPyramid(imageWidth, imageHeight);
 
     for (int i = 0; i < num_levels; i++) {
         float sigma = sigma0 * pow(k, levels[i]);
         int fsize = floor(3 * sigma * 2) + 1;
-        float* filter = createGaussianFilter(fsize, fsize, sigma);
+        float* filter = createHostGaussianFilter(fsize, fsize, sigma);
 
         // copy filter to CUDA memory
         float* cudaFilter;
         cudaMalloc(&cudaFilter, sizeof(float) * fsize * fsize);
-        cudaMemcpy(cudaFilter, filter, sizeof(float) * fsize * fsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(cudaFilter, filter, sizeof(float) * fsize * fsize,
+                   cudaMemcpyHostToDevice);
 
         // Spawn CUDA threads
         dim3 gridDim(imageWidth / BLOCK_WIDTH, imageHeight / BLOCK_HEIGHT);
         dim3 blockDim(BLOCK_WIDTH, BLOCK_HEIGHT);
 
-        applyGaussianFilter<<<gridDim, blockDim>>>(cudaImageData, imageHeight, imageWidth
-            cudaFilter, fsize, gaussian_pyramid[i]);
+        applyGaussianFilter<<<gridDim, blockDim>>>(cudaImageData, imageHeight,
+                                            imageWidth, cudaFilter, fsize);
+
+        // Transfer the ith pyramid from device to host's gaussian_pyramid
+        getGaussianPyramid(i);
 
         // clean up memory
         delete[] filter;
         cudaFree(cudaFilter);
     }
+    cudaFree(cudaGaussianPyramid);
+
+    return gaussian_pyramid;
 
 }
 
