@@ -18,7 +18,7 @@ public:
     void allocHostGaussianPyramid(int width, int height, int num_levels);
     void allocDeviceGaussianPyramid(int width, int height);
 
-    float** createGaussianPyramid(float sigma0, float k, int* levels, 
+    float** createGaussianPyramid(float sigma0, float k, const int* levels, 
     							  int num_levels);
 
     // Get the ith Gaussian pyramid from device to host

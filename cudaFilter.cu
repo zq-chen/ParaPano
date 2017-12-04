@@ -125,7 +125,7 @@ inBound(int r, int c, int h, int w) {
  * kernel function
  */
 __global__ void
-applyGaussianFilter(float* img_ptr, int h, int w, 
+applyGaussianFilter(const float* img_ptr, int h, int w, 
                     float* cudaFilter, int fsize, float* cudaGaussianPyramid) {
 
     int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -147,7 +147,7 @@ applyGaussianFilter(float* img_ptr, int h, int w,
 }
  
 float**
-CudaFilterer::createGaussianPyramid(float sigma0, float k, int* levels,
+CudaFilterer::createGaussianPyramid(float sigma0, float k, const int* levels,
                                     int num_levels) {
 
     numLevels = num_levels;

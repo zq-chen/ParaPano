@@ -24,3 +24,12 @@ Compute BRIEF Descriptor: 0.09
 Match keypoint descriptors: 1.34
 Compute Homography: 0.28
 Stitch Images: 0.36
+
+Constant memory for image:
+Compute Gaussian Pyramid: 0.05
+Compute DoG Pyramid: 0.03
+Detect Keypoints: 0.11
+Compute BRIEF Descriptor: 0.10
+Match keypoint descriptors: 1.35
+Compute Homography: 0.26
+Stitch Images: 0.40
