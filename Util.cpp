@@ -125,10 +125,9 @@ BriefResult Util::BriefLite(std::string im_name, Point* compareA,
     gaussian_pyramid_start = clock();
     float** gaussian_pyramid = 
         cudaFilterer.createGaussianPyramid(sigma0, k, levels, num_levels);
-    /*
-    float** gaussian_pyramid = createGaussianPyramid(im1_ptr, h, w, sigma0, k,
-                                                     levels, num_levels);
-                                                     */
+    
+    //float** gaussian_pyramid = createGaussianPyramid(im1_ptr, h, w, sigma0, k,
+                                                     // levels, num_levels);                    
     gaussian_pyramid_elapsed += get_time_elapsed(gaussian_pyramid_start);
 
 

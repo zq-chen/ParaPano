@@ -128,15 +128,6 @@ __global__ void
 applyGaussianFilter(float* img_ptr, int h, int w, 
                     float* cudaFilter, int fsize, float* cudaGaussianPyramid) {
 
-    // int linearThreadIndex = threadIdx.y * blockDim.x + threadIdx.x;
-
-    /*
-    int minX = BLOCK_WIDTH * blockIdx.x;
-    int maxX = minX + BLOCK_WIDTH; // include the boundary
-    int minY = BLOCK_HEIGHT * blockIdx.y;
-    int maxY = minY + BLOCK_HEIGHT;
-    */
-
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
 
