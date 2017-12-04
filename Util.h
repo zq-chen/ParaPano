@@ -21,7 +21,7 @@ class Util
 public:
     Util();
 
-    ~Util();
+    virtual ~Util();
 
     double get_time_elapsed(clock_t& start);
 
@@ -44,11 +44,11 @@ public:
 
     void stitch(std::vector<cv::Mat> images, std::vector<cv::Mat> homographies);
 
-    void printImage(float* img, int h, int w);
+    void printImage(float* img, int h, int w) const;
 
-    void displayImg(cv::Mat& im);
+    void displayImg(cv::Mat& im) const;
 
-    void printTiming();
+    void printTiming() const;
 
 private:
     clock_t gaussian_pyramid_start;

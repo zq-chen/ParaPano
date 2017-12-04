@@ -30,7 +30,8 @@ CudaFilterer::~CudaFilterer() {
     }
 }
 
-void printCudaInfo() {
+void
+printCudaInfo() {
     int deviceCount = 0;
     cudaError_t err = cudaGetDeviceCount(&deviceCount);
 
@@ -74,7 +75,8 @@ CudaFilterer::getGaussianPyramid(int i) {
         cudaMemcpyDeviceToHost);
 }
 
-void CudaFilterer::setup(float* img, int h, int w) {
+void
+CudaFilterer::setup(float* img, int h, int w) {
 
     printCudaInfo();
 
@@ -89,7 +91,8 @@ void CudaFilterer::setup(float* img, int h, int w) {
 
 
 // create a normalized gaussian filter of height h and width w
-float* createHostGaussianFilter(const int fh, const int fw, float sigma) {
+float*
+createHostGaussianFilter(const int fh, const int fw, float sigma) {
     float* gaussianFilter = new float[fh * fw];
     float sum = 0.0;
     int centerX = fw/2;
@@ -113,14 +116,48 @@ float* createHostGaussianFilter(const int fh, const int fw, float sigma) {
     return gaussianFilter;
 }
 
+__device__ __inline__ bool
+inBound(int r, int c, int h, int w) {
+    return r >= 0 && r < h && c >= 0 && c < w;
+}
 
-__global__ void applyGaussianFilter(float* img_ptr, int h, int w, 
-                                    float* cudaFilter, int fsize) {
+/*
+ * kernel function
+ */
+__global__ void
+applyGaussianFilter(float* img_ptr, int h, int w, 
+                    float* cudaFilter, int fsize, float* cudaGaussianPyramid) {
 
+    // int linearThreadIndex = threadIdx.y * blockDim.x + threadIdx.x;
+
+    /*
+    int minX = BLOCK_WIDTH * blockIdx.x;
+    int maxX = minX + BLOCK_WIDTH; // include the boundary
+    int minY = BLOCK_HEIGHT * blockIdx.y;
+    int maxY = minY + BLOCK_HEIGHT;
+    */
+
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    float weightedSum = 0.0;
+    int fhHalf = fsize / 2;
+    int fwHalf = fsize / 2;
+
+    for (int ii = -fhHalf; ii < fsize - fhHalf; ii++) {
+        for (int jj = -fwHalf; jj < fsize - fwHalf; jj++) {
+            int r = row + ii;
+            int c = col + jj;
+            float imVal = inBound(r, c, h, w) ? img_ptr[r * w + c] : 0;
+            weightedSum += imVal * cudaFilter[(ii+fhHalf)*fsize + (jj+fwHalf)];
+        }
+    }
+    cudaGaussianPyramid[row * w + col] = weightedSum;
 }
  
 float**
-CudaFilterer::createGaussianPyramid(float sigma0, float k, int* levels, int num_levels) {
+CudaFilterer::createGaussianPyramid(float sigma0, float k, int* levels,
+                                    int num_levels) {
 
     numLevels = num_levels;
 
@@ -145,7 +182,7 @@ CudaFilterer::createGaussianPyramid(float sigma0, float k, int* levels, int num_
         dim3 blockDim(BLOCK_WIDTH, BLOCK_HEIGHT);
 
         applyGaussianFilter<<<gridDim, blockDim>>>(cudaImageData, imageHeight,
-                                            imageWidth, cudaFilter, fsize);
+                        imageWidth, cudaFilter, fsize, cudaGaussianPyramid);
 
         // Transfer the ith pyramid from device to host's gaussian_pyramid
         getGaussianPyramid(i);
@@ -157,6 +194,4 @@ CudaFilterer::createGaussianPyramid(float sigma0, float k, int* levels, int num_
     cudaFree(cudaGaussianPyramid);
 
     return gaussian_pyramid;
-
 }
-

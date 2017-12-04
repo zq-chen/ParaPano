@@ -32,7 +32,7 @@ Util::Util() {
 
 Util::~Util() {}
 
-void Util::printTiming() {
+void Util::printTiming() const {
     printf("Compute Gaussian Pyramid: %.2f\n", gaussian_pyramid_elapsed);
     printf("Compute DoG Pyramid: %.2f\n", dog_pyramid_elapsed);
     printf("Detect Keypoints: %.2f\n", keypoint_detection_elapsed);
@@ -123,8 +123,12 @@ BriefResult Util::BriefLite(std::string im_name, Point* compareA,
         cudaFilterer.createGaussianPyramid(sigma0, k, levels, num_levels);
 
     gaussian_pyramid_start = clock();
+    float** gaussian_pyramid = 
+        cudaFilterer.createGaussianPyramid(sigma0, k, levels, num_levels);
+    /*
     float** gaussian_pyramid = createGaussianPyramid(im1_ptr, h, w, sigma0, k,
                                                      levels, num_levels);
+                                                     */
     gaussian_pyramid_elapsed += get_time_elapsed(gaussian_pyramid_start);
 
 
@@ -226,7 +230,7 @@ int Util::readTestPattern(Point*& compareA, Point*& compareB,
     return num_test_pairs;
 }
 
-void Util::printImage(float* img, int h, int w) {
+void Util::printImage(float* img, int h, int w) const {
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
             std::cout << img[i * w + j] << " ";
@@ -235,7 +239,7 @@ void Util::printImage(float* img, int h, int w) {
     }
 }
 
-inline void Util::displayImg(Mat& im) {
+inline void Util::displayImg(Mat& im) const {
     // Create a window for display.
     namedWindow( "Display window", WINDOW_AUTOSIZE );
     imshow( "Display window", im);                // Show our image inside it.
