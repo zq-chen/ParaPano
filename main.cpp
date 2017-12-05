@@ -20,17 +20,22 @@
 
 using namespace cv;
 
-extern const int num_images = 2;
+extern const int num_images = 5;
 
 int main(int argc, char** argv) {
 
     Util util;
 
-    std::string im_names[2] = {"../data/incline_L.png","../data/incline_R.png"};
+    // std::string im_names[2] = {"../data/incline_L.png","../data/incline_R.png"};
 
-//    string im_names[4] = {"../data/mountain1.jpg", "../data/mountain2.jpg", 
-//    "../data/mountain3.jpg", "../data/mountain4.jpg"};
-//    int num_images = 4;
+    //std::string im_names[4] = {"../data/mountain1.jpg", "../data/mountain2.jpg", "../data/mountain3.jpg", "../data/mountain4.jpg"};
+    std::string im_names[num_images];
+    // for (int i = 0; i < num_images; i++) {
+    //   im_names[i] = "../data/campus/ece" + std::to_string(i+1) + ".jpeg";
+    // }
+    for (int i = 0; i < num_images; i++) {
+      im_names[i] = "../data/campus/lawn" + std::to_string(i+1) + ".jpeg";
+    }
 
     std::vector<Mat> images;
     images.reserve(num_images);
@@ -58,17 +63,64 @@ int main(int argc, char** argv) {
         brief_results.push_back(brief_result);
     }
 
+    // compute homographies relative to the first image
     std::vector<Mat> homographies;
-    homographies.reserve(num_images-1);
-    for (int i = 0; i < num_images-1; i++) {
-        Mat H = util.computeHomography(im_names[i], im_names[i+1],
-                                       brief_results[i], brief_results[i+1]);
+    homographies.reserve(num_images);
+    Mat identity = Mat::eye(3, 3, CV_32F);
+    homographies.push_back(identity);
+    for (int i = 1; i < num_images; i++) {
+
+        // compute transformation between image(i) and image(i-1)
+        Mat H = util.computeHomography(im_names[i-1], im_names[i],
+                                       brief_results[i-1], brief_results[i]);
+
+        // Compute H(i) * H(i-1) * ... * H(1)
+        H = homographies[i-1] * H;
         homographies.push_back(H);
     }
+    std::cout << "Computed homographies" << std::endl;
+
+    // find inverse of center image
+    int center_image_idx = (num_images - 1) / 2;
+    Mat center_inverse = homographies[center_image_idx].inv();
+
+    // apply center homo inverse and compute panorama size
+    double xMin, yMin = INT_MAX;
+    double xMax, yMax = 0;
+    for (int i = 0; i < homographies.size(); i++) {
+        homographies[i] = center_inverse * homographies[i];
+        std::vector<Point2d> corners = getWarpCorners(images[i], homographies[i]);
+        for (int j = 0; j < corners.size(); j++) {
+            xMin = std::min(xMin, corners[j].x);
+            xMax = std::max(xMax, corners[j].x);
+            yMin = std::min(yMin, corners[j].y);
+            yMax = std::max(yMax, corners[j].y);
+        }
+    }
+
+    // shift the panorama if warped images are out of boundaries
+    double shiftX = -xMin;
+    double shiftY = -yMin;
+    Mat transM = getTranslationMatrix(shiftX, shiftY);
+
+    // printf("xmin=%.2f, xmax=%.2f\n", xMin, xMax);
+    // printf("ymin=%.2f, ymax=%.2f\n", yMin, yMax);
+
+    // initialize empty panorama
+    int width = std::round(xMax - xMin);
+    int height = std::round(yMax - yMin);
+    Mat panorama = Mat::zeros(height, width, CV_32F);
+
+    // apply translation to homographies
+    for (int i = 0; i < homographies.size(); i++) {
+        homographies[i] = transM * homographies[i];
+        // normalze homography matrix
+        homographies[i] = homographies[i]/homographies[i].at<float>(2,2);
+    }
+    std::cout << "Adjusted Panorama to Center Image" << std::endl;
 
     // Perform image stitching
-    util.stitch(images, homographies);
-
+    util.stitch(images, homographies, width, height);
     util.printTiming();
 
     return 0;

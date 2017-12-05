@@ -42,7 +42,7 @@ public:
     BriefResult BriefLite(std::string im_name, cv::Point* compareA,
                           cv::Point* compareB);
 
-    void stitch(std::vector<cv::Mat> images, std::vector<cv::Mat> homographies);
+    void stitch(std::vector<cv::Mat> images, std::vector<cv::Mat> homographies, int width, int height);
 
     void printImage(float* img, int h, int w) const;
 

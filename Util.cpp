@@ -67,6 +67,7 @@ void Util::cleanPointerArray(float** arr, int num_levels) {
 Mat Util::computeHomography(std::string im1_name, std::string im2_name,
                       BriefResult brief_result1, BriefResult brief_result2) {
 
+    std::cout << "Matching key points: " + im1_name + ", " + im2_name << std::endl;
     find_match_start = clock();
     MatchResult match = briefMatch(brief_result1.descriptors,
                                    brief_result2.descriptors);
@@ -84,7 +85,7 @@ Mat Util::computeHomography(std::string im1_name, std::string im2_name,
     }
     find_match_elapsed += get_time_elapsed(find_match_start);
 
-
+    std::cout << "Computing Homography..." << std::endl;
     compute_homography_start = clock();
     Mat H = findHomography(pts2, pts1, RANSAC, 4.0);
     compute_homography_elapsed += get_time_elapsed(compute_homography_start);
@@ -97,7 +98,7 @@ Mat Util::computeHomography(std::string im1_name, std::string im2_name,
 BriefResult Util::BriefLite(std::string im_name, Point* compareA,
                             Point* compareB) {
 
-    std::cout << "Compute BRIEF for image " + im_name << std::endl;
+    std::cout << "Computing BRIEF for image " + im_name << std::endl;
 
     Mat im_color = imread(im_name, IMREAD_COLOR);
 
@@ -135,7 +136,7 @@ BriefResult Util::BriefLite(std::string im_name, Point* compareA,
     float** dog_pyramid = createDoGPyramid(gaussian_pyramid, h, w, num_levels);
     // outputGaussianImages(gaussian_pyramid, h, w, num_levels);
     // outputDoGImages(dog_pyramid, h, w, num_levels);
-    std::cout << "Created DoG Pyramid" << std::endl;
+
     dog_pyramid_elapsed += get_time_elapsed(dog_pyramid_start);
 
     keypoint_detection_start = clock();
@@ -147,7 +148,7 @@ BriefResult Util::BriefLite(std::string im_name, Point* compareA,
     printf("Detected %lu key points\n", keypoints.size());
     keypoint_detection_elapsed += get_time_elapsed(keypoint_detection_start);
 
-    outputImageWithKeypoints(im_name, im_color, keypoints);
+    // outputImageWithKeypoints(im_name, im_color, keypoints);
 
     compute_brief_start = clock();
     BriefResult brief_result = computeBrief(gaussian_pyramid[0], h, w, 
@@ -157,7 +158,6 @@ BriefResult Util::BriefLite(std::string im_name, Point* compareA,
     // clean up
     cleanPointerArray(gaussian_pyramid, num_levels);
     cleanPointerArray(dog_pyramid, num_levels - 1);
-    std::cout << "Cleaned up Memory" << std::endl;
 
     return brief_result;
 }
@@ -188,28 +188,34 @@ void Util::plotMatches(std::string im1_name, std::string im2_name,
     imwrite("../output/match.jpg", grid);
 }
 
-void Util::stitch(std::vector<Mat> images, std::vector<Mat> homographies) {
+void Util::stitch(std::vector<Mat> images, std::vector<Mat> homographies, int width, int height) {
     stitching_start = clock();
-    Mat prev_img = images[0];
-    Mat prev_H = Mat::eye(3, 3, CV_32F);
-    Mat mask1 = creatMask(prev_img);
-    for (int i = 1; i < num_images; i++) {
 
-        Mat H = prev_H * homographies[i-1];
-        H = H/H.at<float>(2,2); // normalze
-        Mat stitch_img = stitchImages(prev_img, images[i], mask1, H, prev_H);
-        prev_img = stitch_img;
+    Mat panorama = Mat::zeros(height, width, images[0].type());
+    panorama = panorama / 255;
+    Mat pano_mask = Mat::zeros(height, width, images[0].type());
+    for (int i = 0; i < num_images; i++) {
+
+        // create mask for image
+        Mat img_mask = createMask(images[i]);
+        warpPerspective(img_mask, img_mask, homographies[i], Size(width, height));
+
+        // stitch image to panorama
+        panorama = stitchImages(panorama, images[i], 
+            homographies[i], pano_mask, img_mask);
+
+        // update panorama mask
+        pano_mask = pano_mask + img_mask;
 
         std::string output_name = "../output/stitch_" +
                                     std::to_string(i) + ".jpg";
-        imwrite(output_name, stitch_img * 255);
+        imwrite(output_name, panorama * 255);
 
     }
     stitching_elapsed = get_time_elapsed(stitching_start);
 
-    displayImg(prev_img);
-
-    imwrite("../output/panorama.jpg", prev_img * 255);
+    // displayImg(panorama);
+    imwrite("../output/panorama.jpg", panorama * 255);
 }
 
 int Util::readTestPattern(Point*& compareA, Point*& compareB,

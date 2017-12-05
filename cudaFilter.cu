@@ -78,7 +78,7 @@ CudaFilterer::getGaussianPyramid(int i) {
 void
 CudaFilterer::setup(float* img, int h, int w) {
 
-    printCudaInfo();
+    // printCudaInfo();
 
     // set parameters
     imageHeight = h;

@@ -50,51 +50,27 @@ void convertImg2Float(Mat& im) {
     im = im / 255;
 }
 
-Mat stitchImages(Mat& im1, Mat& im2, Mat& mask1, Mat& H, Mat& prev_H) {
+std::vector<Point2d> getWarpCorners(Mat& im, Mat& H) {
+    std::vector<Point2d> im_corners, im_corners_warped;
+    im_corners.reserve(4);
 
-    Mat im2_warped;
-    std::vector<Point2d> im2_corners, im2_corners_warped;
-    im2_corners.reserve(4);
-    int h2 = im2.rows;
-    int w2 = im2.cols;
-    im2_corners.push_back(Point2d(0,0));
-    im2_corners.push_back(Point2d(w2,0));
-    im2_corners.push_back(Point2d(0,h2));
-    im2_corners.push_back(Point2d(w2,h2));
+    // corners before warping
+    int h = im.rows;
+    int w = im.cols;
+    im_corners.push_back(Point2d(0,0));
+    im_corners.push_back(Point2d(w,0));
+    im_corners.push_back(Point2d(0,h));
+    im_corners.push_back(Point2d(w,h));
 
-    perspectiveTransform(im2_corners, im2_corners_warped, H);
+    perspectiveTransform(im_corners, im_corners_warped, H);
 
-    int width = max(im2_corners_warped[1].x, im2_corners_warped[3].x);
-    int height = max(abs(im2_corners_warped[0].y - im2_corners_warped[2].y),
-                     abs(im2_corners_warped[1].y - im2_corners_warped[3].y));
-    int shift_height = abs(im2_corners_warped[1].y);
-//    int width = 2000;
-//    int height = 1000;
-//    int shift_height = 0;
-
-    Mat M = getTranslationMatrix(0, shift_height);
-    Mat mask2 = creatMask(im2);
-
-    Mat transform_matrix = M*H;
-    prev_H = transform_matrix;
-    warpPerspective(mask1, mask1, M, Size(width, height));
-    warpPerspective(mask2, mask2, transform_matrix, Size(width, height));
-    warpPerspective(im1, im1, M, Size(width, height));
-    warpPerspective(im2, im2_warped, transform_matrix, Size(width, height));
-
-    Mat bim1, bim2;
-    multiply(im1, mask1, bim1);
-    multiply(im2_warped, mask2, bim2);
-    Mat stitch_img;
-    divide(bim1 + bim2, mask1 + mask2, stitch_img);
-
-    // update mask1
-    mask1 = mask1 + mask2;
-
-    return stitch_img;
+    // 0:(0,0) --- 1:(w,0)
+    //    |          |
+    // 2:(0,h) --- 3:(w,h)
+    return im_corners_warped;
 }
 
-Mat creatMask(Mat& im) {
+Mat createMask(Mat& im) {
     Mat mask = Mat::ones(im.size(), CV_8UC1);
     mask.row(0).setTo(0);
     mask.row(mask.rows-1).setTo(0);
@@ -112,4 +88,28 @@ Mat creatMask(Mat& im) {
     merge(singleChannels, mask);
 
     return mask;
+}
+
+inline void displayImg(Mat& im) {
+    // Create a window for display.
+    namedWindow( "Display window", WINDOW_AUTOSIZE );
+    imshow( "Display window", im);                // Show our image inside it.
+    waitKey(0);
+}
+
+// warp image 2 onto image 1 and stitch together
+Mat stitchImages(Mat& pano, Mat& image, Mat& H, Mat& pano_mask, Mat& img_mask) {
+    int width = pano.cols;
+    int height = pano.rows;
+
+    Mat image_warped;
+    warpPerspective(image, image_warped, H, Size(width, height));
+
+    Mat bim1, bim2;
+    multiply(pano, pano_mask, bim1);
+    multiply(image_warped, img_mask, bim2);
+
+    Mat stitch_img;
+    divide(bim1 + bim2, pano_mask + img_mask, stitch_img);
+    return stitch_img;
 }
