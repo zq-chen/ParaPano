@@ -7,6 +7,7 @@
 #include <opencv2/highgui.hpp>
 #include <iostream>
 #include "brief.h"
+#include "cudaMatcher.h"
 
 using namespace cv;
 using namespace std;
@@ -146,6 +147,7 @@ float findBestMatch(std::vector<Descriptor>& desc, Descriptor& d,
     return second_min == 0 ? 1 : float(min) / second_min;
 }
 
+
 // match desc1 against desc2
 MatchResult briefMatch(std::vector<Descriptor>& desc1,
                        std::vector<Descriptor>& desc2) {
@@ -160,5 +162,20 @@ MatchResult briefMatch(std::vector<Descriptor>& desc1,
             match_result.indices2.push_back(match_idx);
         }
     }
+    return match_result;
+}
+
+// CUDA version of matching key points
+MatchResult cudaBriefMatch(std::vector<Descriptor>& desc1,
+                       std::vector<Descriptor>& desc2) {
+
+    MatchResult match_result;
+    CudaMatcher cudaMatcher = CudaMatcher();
+    cudaMatcher.setup(brief_result1.descriptors, brief_result2.descriptors);
+    cudaMatcher.findMatch();
+
+    match_result.indice1 = cudaMatcher.indice1;
+    match_result.indices2 = cudaMatcher.indices2;
+
     return match_result;
 }
