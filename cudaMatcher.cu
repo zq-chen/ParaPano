@@ -73,8 +73,20 @@ CudaMatcher::setup(vector<Descriptor>& desc1, vector<Descriptor>& desc2) {
 }
 
 
+__device__ __inline__ int countOneBits(int64_t x) {
+    return 0;
+}
+
+
 __device__ __inline__ int hammingDistance(Descriptor& d1, Descriptor& d2) {
-    return (d1.values ^ d2.values).count();
+    int dist = 0;
+    BitArray& b1 = d1.values;
+    BitArray& b2 = d2.values;
+    for (int i = 0; i < b1.num_cells; i++) {
+        int64_t diff = b1[i] ^ b2[i];
+        dist += countOneBits(diff);
+    }
+    return dist;
 }
 
 __device__ void findBestMatch(int idx, Descriptor& d, Descriptor* cudaDesc2, 
