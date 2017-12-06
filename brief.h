@@ -4,16 +4,18 @@
 
 #pragma once
 
-#include <bitset>
+// #include <bitset>
 #include <string>
 #include <vector>
 #include <opencv2/core/core.hpp>
+#include "bitarray.h"
 
 #define PATCH_SIZE 9
 #define NUM_OF_TEST_PAIRS 256
 
 struct Descriptor {
-    std::bitset<NUM_OF_TEST_PAIRS> values;
+    // std::bitset<NUM_OF_TEST_PAIRS> values;
+  BitArray values;
 };
 
 struct BriefResult {
@@ -30,7 +32,10 @@ struct MatchResult {
 
 //BriefResult BriefLite(std::string im_name, cv::Point* compareA,
 // cv::Point* compareB);
-MatchResult briefMatch(std::vector<Descriptor>& desc1,
+// MatchResult briefMatch(std::vector<Descriptor>& desc1,
+//                        std::vector<Descriptor>& desc2);
+
+MatchResult cudaBriefMatch(std::vector<Descriptor>& desc1,
                        std::vector<Descriptor>& desc2);
 
 BriefResult computeBrief(float* im, int h, int w,

@@ -27,26 +27,6 @@ CudaMatcher::~CudaMatcher() {
     }
 }
 
-void
-printCudaInfo() {
-    int deviceCount = 0;
-    cudaError_t err = cudaGetDeviceCount(&deviceCount);
-
-    printf("---------------------------------------------------------\n");
-    printf("Found %d CUDA devices\n", deviceCount);
-
-    for (int i=0; i<deviceCount; i++) {
-        cudaDeviceProp deviceProps;
-        cudaGetDeviceProperties(&deviceProps, i);
-        printf("Device %d: %s\n", i, deviceProps.name);
-        printf("   SMs:        %d\n", deviceProps.multiProcessorCount);
-        printf("   Global mem: %.0f MB\n",
-               static_cast<float>(deviceProps.totalGlobalMem) / (1024 * 1024));
-        printf("   CUDA Cap:   %d.%d\n", deviceProps.major, deviceProps.minor);
-    }
-    printf("---------------------------------------------------------\n");
-}
-
 void copyDescriptorToDevice(vector<Descriptor>& desc, Descriptor* cudaDesc) {
     int num_desc = desc.size();
 
@@ -83,7 +63,7 @@ __device__ __inline__ int hammingDistance(Descriptor& d1, Descriptor& d2) {
     BitArray& b1 = d1.values;
     BitArray& b2 = d2.values;
     for (int i = 0; i < b1.num_cells; i++) {
-        int64_t diff = b1[i] ^ b2[i];
+        int64_t diff = b1.value[i] ^ b2.value[i];
         dist += countOneBits(diff);
     }
     return dist;

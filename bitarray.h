@@ -4,8 +4,8 @@
 
 class BitArray {
 public:
-	Bitarray();
-	virtual ~Bitarray() {}
+	BitArray();
+	virtual ~BitArray() {}
 
 	void set(int pos, bool cond);
 
