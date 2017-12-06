@@ -15,6 +15,7 @@
 #include "keyPointDetector.h"
 #include "stitcher.h"
 #include "cudaFilter.h"
+#include "cudaMatcher.h"
 
 using namespace cv;
 
@@ -69,10 +70,17 @@ Mat Util::computeHomography(std::string im1_name, std::string im2_name,
 
     std::cout << "Matching key points: " + im1_name + ", " + im2_name << std::endl;
     find_match_start = clock();
-    MatchResult match = briefMatch(brief_result1.descriptors,
-                                   brief_result2.descriptors);
+
+    // MatchResult match = briefMatch(brief_result1.descriptors,
+    //                                brief_result2.descriptors);
+
     // plotMatches(im1_name, im2_name, brief_result1.keypoints, 
     //             brief_result2.keypoints, match);
+
+    CudaMatcher match = CudaMatcher();
+    match.setup(brief_result1.descriptors, brief_result2.descriptors);
+    match.findMatch();
+
     std::vector<Point> pts1;
     pts1.reserve(match.indices1.size());
     std::vector<Point> pts2;

@@ -28,11 +28,7 @@ int main(int argc, char** argv) {
 
     // std::string im_names[2] = {"../data/incline_L.png","../data/incline_R.png"};
 
-    //std::string im_names[4] = {"../data/mountain1.jpg", "../data/mountain2.jpg", "../data/mountain3.jpg", "../data/mountain4.jpg"};
     std::string im_names[num_images];
-    // for (int i = 0; i < num_images; i++) {
-    //   im_names[i] = "../data/campus/ece" + std::to_string(i+1) + ".jpeg";
-    // }
     for (int i = 0; i < num_images; i++) {
       im_names[i] = "../data/campus/lawn" + std::to_string(i+1) + ".jpeg";
     }
@@ -102,9 +98,6 @@ int main(int argc, char** argv) {
     double shiftX = -xMin;
     double shiftY = -yMin;
     Mat transM = getTranslationMatrix(shiftX, shiftY);
-
-    // printf("xmin=%.2f, xmax=%.2f\n", xMin, xMax);
-    // printf("ymin=%.2f, ymax=%.2f\n", yMin, yMax);
 
     // initialize empty panorama
     int width = std::round(xMax - xMin);
