@@ -15,7 +15,43 @@
 
 struct Descriptor {
     // std::bitset<NUM_OF_TEST_PAIRS> values;
-  BitArray values;
+  //BitArray values;
+  int num_cells;
+  int64_t num0;
+  int64_t num1;
+  int64_t num2;
+  int64_t num3;
+
+  Descriptor() {
+    num_cells = 4;
+    num0 = 0x0LL;
+    num1 = 0x0LL;
+    num2 = 0x0LL;
+    num3 = 0x0LL;
+  }
+
+  /* valid pos: 0 <= pos <= 255 */
+  void set(int pos, bool cond) {
+    if (pos < 0 || pos > 255) {
+      printf("Invalid pos\n");
+      return;
+    }
+    if (cond) {
+      int id = pos / 4;
+      int real_pos = pos % 64;
+      int64_t tmp = 1 << real_pos;
+      switch (id) {
+        case 0:
+          num0 |= tmp;
+        case 1:
+          num1 |= tmp;
+        case 2:
+          num2 |= tmp;
+        case 3:
+          num3 |= tmp;
+      }
+    }
+  }
 };
 
 struct BriefResult {

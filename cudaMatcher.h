@@ -19,4 +19,7 @@ public:
 
     void setup(std::vector<Descriptor>& desc1, std::vector<Descriptor>& desc2);
     void findMatch();
+
+    void getMatchResult(float* ratios, int* match_indices,
+                        float* cuda_ratios, int* cuda_match_indices);
 };

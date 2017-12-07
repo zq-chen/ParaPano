@@ -96,7 +96,7 @@ Descriptor computeKeypointDescriptor(float* patch, Point* compareA,
         int y2 = compareB[i].y;
         float a_val = patch[y1 * PATCH_SIZE + x1];
         float b_val = patch[y2 * PATCH_SIZE + x2];
-        dscr.values.set(i, a_val < b_val);
+        dscr.set(i, a_val < b_val);
     }
     return dscr;
 }
@@ -170,12 +170,13 @@ MatchResult cudaBriefMatch(std::vector<Descriptor>& desc1,
                        std::vector<Descriptor>& desc2) {
 
     MatchResult match_result;
-    CudaMatcher cudaMatcher = CudaMatcher();
+    CudaMatcher cudaMatcher;
     cudaMatcher.setup(desc1, desc2);
     cudaMatcher.findMatch();
 
     match_result.indices1 = cudaMatcher.indices1;
     match_result.indices2 = cudaMatcher.indices2;
+    printf("cudaBriefMatch done\n");
 
     return match_result;
 }
