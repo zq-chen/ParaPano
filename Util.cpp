@@ -70,8 +70,7 @@ Mat Util::computeHomography(std::string im1_name, std::string im2_name,
     std::cout << "Matching key points: " + im1_name + ", " + im2_name << std::endl;
     find_match_start = clock();
 
-    MatchResult match = cudaBriefMatch(brief_result1.descriptors,
-        brief_result2.descriptors);
+    MatchResult match = cudaBriefMatch(brief_result1.descriptors, brief_result2.descriptors);
 
     // plotMatches(im1_name, im2_name, brief_result1.keypoints, 
     //             brief_result2.keypoints, match);
@@ -83,7 +82,6 @@ Mat Util::computeHomography(std::string im1_name, std::string im2_name,
     for (int i = 0; i < match.indices1.size(); i++) {
         int idx1 = match.indices1[i];
         int idx2 = match.indices2[i];
-        printf("idx1:%d, idx2:%d\n", idx1, idx2);
         pts1.push_back(brief_result1.keypoints[idx1]);
         pts2.push_back(brief_result2.keypoints[idx2]);
     }

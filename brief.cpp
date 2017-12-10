@@ -123,7 +123,6 @@ BriefResult computeBrief(float* im, int h, int w, std::vector<Point>& keypoints,
     return BriefResult(valid_keypoints, descriptors);
 }
 
-
 // int hammingDistance(Descriptor& d1, Descriptor& d2) {
 //     return (d1.values ^ d2.values).count();
 // }
@@ -147,7 +146,6 @@ BriefResult computeBrief(float* im, int h, int w, std::vector<Point>& keypoints,
 //     return second_min == 0 ? 1 : float(min) / second_min;
 // }
 
-
 // match desc1 against desc2
 // MatchResult briefMatch(std::vector<Descriptor>& desc1,
 //                        std::vector<Descriptor>& desc2) {
@@ -166,17 +164,11 @@ BriefResult computeBrief(float* im, int h, int w, std::vector<Point>& keypoints,
 // }
 
 // CUDA version of matching key points
-MatchResult cudaBriefMatch(std::vector<Descriptor>& desc1,
-                       std::vector<Descriptor>& desc2) {
-
-    MatchResult match_result;
+MatchResult cudaBriefMatch(std::vector<Descriptor>& desc1, std::vector<Descriptor>& desc2) {
+    
     CudaMatcher cudaMatcher;
     cudaMatcher.setup(desc1, desc2);
-    cudaMatcher.findMatch();
+    return cudaMatcher.findMatch();
 
-    match_result.indices1 = cudaMatcher.indices1;
-    match_result.indices2 = cudaMatcher.indices2;
     printf("cudaBriefMatch done\n");
-
-    return match_result;
 }
