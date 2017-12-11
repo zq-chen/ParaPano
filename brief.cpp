@@ -123,45 +123,6 @@ BriefResult computeBrief(float* im, int h, int w, std::vector<Point>& keypoints,
     return BriefResult(valid_keypoints, descriptors);
 }
 
-// int hammingDistance(Descriptor& d1, Descriptor& d2) {
-//     return (d1.values ^ d2.values).count();
-// }
-
-// float findBestMatch(std::vector<Descriptor>& desc, Descriptor& d,
-//                     int& match_idx) {
-//     int min = INT_MAX;
-//     int second_min = INT_MAX;
-//     int min_idx = -1;
-//     for (int i = 0; i < desc.size(); i++) {
-//         int dist = hammingDistance(desc[i], d);
-//         if (dist < min) {
-//             second_min = min;
-//             min = dist;
-//             min_idx = i;
-//         } else if (dist < second_min) {
-//             second_min = dist;
-//         }
-//     }
-//     match_idx = min_idx;
-//     return second_min == 0 ? 1 : float(min) / second_min;
-// }
-
-// match desc1 against desc2
-// MatchResult briefMatch(std::vector<Descriptor>& desc1,
-//                        std::vector<Descriptor>& desc2) {
-
-//     MatchResult match_result;
-//     float ratio = 0.8;
-//     for (int i = 0; i < desc1.size(); i++) {
-//         int match_idx;
-//         float r = findBestMatch(desc2, desc1[i], match_idx);
-//         if (r < ratio) {
-//             match_result.indices1.push_back(i);
-//             match_result.indices2.push_back(match_idx);
-//         }
-//     }
-//     return match_result;
-// }
 
 // CUDA version of matching key points
 MatchResult cudaBriefMatch(std::vector<Descriptor>& desc1, std::vector<Descriptor>& desc2) {

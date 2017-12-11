@@ -200,7 +200,14 @@ void Util::stitch(std::vector<Mat> images, std::vector<Mat> homographies, int wi
 
         // create mask for image
         Mat img_mask = createMask(images[i]);
-        warpPerspective(img_mask, img_mask, homographies[i], Size(width, height));
+
+        cuda::GpuMat src_gpu, dst_gpu;
+        src_gpu.upload(img_mask);
+        dst_gpu.upload(img_mask);
+
+        cuda::warpPerspective(src_gpu, dst_gpu, homographies[i], Size(width, height));
+
+        dst_gpu.download(img_mask);
 
         // stitch image to panorama
         panorama = stitchImages(panorama, images[i], 

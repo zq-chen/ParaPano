@@ -19,7 +19,7 @@
 
 using namespace cv;
 
-extern const int num_images = 5;
+extern const int num_images = 6;
 
 int main(int argc, char** argv) {
 
@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
 
    std::string im_names[num_images];
    for (int i = 0; i < num_images; i++) {
-       im_names[i] = "../data/campus/lawn" + std::to_string(i+1) + ".jpeg";
+       im_names[i] = "../data/campus/fence" + std::to_string(i+1) + ".jpeg";
    }
 
     std::vector<Mat> images;

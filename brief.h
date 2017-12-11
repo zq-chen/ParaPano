@@ -78,11 +78,6 @@ struct MatchResult {
     std::vector<int> indices2;
 };
 
-//BriefResult BriefLite(std::string im_name, cv::Point* compareA,
-// cv::Point* compareB);
-
-// MatchResult briefMatch(std::vector<Descriptor>& desc1,
-//                        std::vector<Descriptor>& desc2);
 
 MatchResult cudaBriefMatch(std::vector<Descriptor>& desc1, std::vector<Descriptor>& desc2);
 

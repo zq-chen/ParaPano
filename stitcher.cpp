@@ -102,8 +102,17 @@ Mat stitchImages(Mat& pano, Mat& image, Mat& H, Mat& pano_mask, Mat& img_mask) {
     int width = pano.cols;
     int height = pano.rows;
 
+    cuda::GpuMat src_gpu, dst_gpu;
+    src_gpu.upload(image);
+
     Mat image_warped;
-    warpPerspective(image, image_warped, H, Size(width, height));
+    image_warped.create(image.size(), image.type());
+    dst_gpu.upload(image_warped);
+
+    cuda::warpPerspective(src_gpu, dst_gpu, H, Size(width, height));
+
+    // src_gpu.download(image);
+    dst_gpu.download(image_warped);
 
     Mat bim1, bim2;
     multiply(pano, pano_mask, bim1);
