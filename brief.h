@@ -93,4 +93,5 @@ BriefResult computeBrief(float* im, int h, int w,
 void outputImageWithKeypoints(std::string im_path, cv::Mat& img,
                               std::vector<cv::Point>& keypoints);
 
+void outputDoGImages(float** dog_pyramid, int h, int w, int num_levels);
 void normalize_img(float* img_ptr, int h, int w);

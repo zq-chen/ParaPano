@@ -19,13 +19,15 @@
 
 using namespace cv;
 
-extern const int num_images = 2;
+extern const int num_images = 5;
 
 int main(int argc, char** argv) {
 
+    double total_time_elapsed = 0.0;
+    clock_t total_start = clock();
     Util util;
 
-//   std::string im_names[2] = {"../data/incline_L.png","../data/incline_R.png"};
+   //std::string im_names[1] = {"../data/mountainR.png"};
 
    std::string im_names[num_images];
    for (int i = 0; i < num_images; i++) {
@@ -59,6 +61,9 @@ int main(int argc, char** argv) {
     }
 
     // compute homographies relative to the first image
+    double compute_homography_elapsed = 0.0;
+    clock_t homography_start = clock();
+
     std::vector<Mat> homographies;
     homographies.reserve(num_images);
     Mat identity = Mat::eye(3, 3, CV_32F);
@@ -92,6 +97,8 @@ int main(int argc, char** argv) {
             yMax = std::max(yMax, corners[j].y);
         }
     }
+    
+    compute_homography_elapsed = util.get_time_elapsed(homography_start);
 
     // shift the panorama if warped images are out of boundaries
     double shiftX = -xMin;
@@ -113,6 +120,11 @@ int main(int argc, char** argv) {
 
     // Perform image stitching
     util.stitch(images, homographies, width, height);
+
+    total_time_elapsed = util.get_time_elapsed(total_start);
+    printf("Total Time is %.2f\n", total_time_elapsed); 
+    printf("Compute Homography Time is %.2f\n", compute_homography_elapsed); 
+
     util.printTiming();
 
     return 0;

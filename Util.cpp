@@ -38,7 +38,7 @@ void Util::printTiming() const {
     printf("Detect Keypoints: %.2f\n", keypoint_detection_elapsed);
     printf("Compute BRIEF Descriptor: %.2f\n", compute_brief_elapsed);
     printf("Match keypoint descriptors: %.12f\n", find_match_elapsed);
-    printf("Compute Homography: %.2f\n", compute_homography_elapsed);
+    //printf("Compute Homography: %.2f\n", compute_homography_elapsed);
     printf("Stitch Images: %.2f\n", stitching_elapsed);
 }
 
@@ -137,7 +137,7 @@ BriefResult Util::BriefLite(std::string im_name, Point* compareA,
     dog_pyramid_start = clock();
     float** dog_pyramid = createDoGPyramid(gaussian_pyramid, h, w, num_levels);
     // outputGaussianImages(gaussian_pyramid, h, w, num_levels);
-    // outputDoGImages(dog_pyramid, h, w, num_levels);
+    //outputDoGImages(dog_pyramid, h, w, num_levels);
 
     dog_pyramid_elapsed += get_time_elapsed(dog_pyramid_start);
 
@@ -150,7 +150,7 @@ BriefResult Util::BriefLite(std::string im_name, Point* compareA,
     printf("Detected %lu key points\n", keypoints.size());
     keypoint_detection_elapsed += get_time_elapsed(keypoint_detection_start);
 
-    // outputImageWithKeypoints(im_name, im_color, keypoints);
+    //outputImageWithKeypoints(im_name, im_color, keypoints);
 
     compute_brief_start = clock();
     BriefResult brief_result = computeBrief(gaussian_pyramid[0], h, w, 
@@ -209,9 +209,8 @@ void Util::stitch(std::vector<Mat> images, std::vector<Mat> homographies, int wi
         // update panorama mask
         pano_mask = pano_mask + img_mask;
 
-        std::string output_name = "../output/stitch_" +
-                                    std::to_string(i) + ".jpg";
-        imwrite(output_name, panorama * 255);
+        //std::string output_name = "../output/stitch_" + std::to_string(i) + ".jpg";
+        //imwrite(output_name, panorama * 255);
 
     }
     stitching_elapsed = get_time_elapsed(stitching_start);

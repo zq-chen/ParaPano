@@ -56,7 +56,7 @@ void outputImageWithKeypoints(std::string im_path, Mat& img,
     std::string im_name = im_path.substr(idx+1);
     std::vector<Point>::iterator it;
     for (it = keypoints.begin(); it != keypoints.end(); ++it) {
-        circle(img, *it, 1, Scalar(0, 0, 255), 1, 8);
+        circle(img, *it, 1, Scalar(0, 0, 255), 3, 8);
     }
     imwrite("../output/" + im_name + "_keypoints.jpg", img);
     std::cout << "Output image with key points" << std::endl;
