@@ -19,18 +19,18 @@
 
 using namespace cv;
 
-extern const int num_images = 5;
+extern const int num_images = 2;
 
 int main(int argc, char** argv) {
 
     Util util;
 
-    //std::string im_names[2] = {"../data/incline_L.png","../data/incline_R.png"};
+//   std::string im_names[2] = {"../data/incline_L.png","../data/incline_R.png"};
 
-    std::string im_names[num_images];
-    for (int i = 0; i < num_images; i++) {
+   std::string im_names[num_images];
+   for (int i = 0; i < num_images; i++) {
        im_names[i] = "../data/campus/lawn" + std::to_string(i+1) + ".jpeg";
-    }
+   }
 
     std::vector<Mat> images;
     images.reserve(num_images);

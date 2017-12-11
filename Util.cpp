@@ -37,7 +37,7 @@ void Util::printTiming() const {
     printf("Compute DoG Pyramid: %.2f\n", dog_pyramid_elapsed);
     printf("Detect Keypoints: %.2f\n", keypoint_detection_elapsed);
     printf("Compute BRIEF Descriptor: %.2f\n", compute_brief_elapsed);
-    printf("Match keypoint descriptors: %.2f\n", find_match_elapsed);
+    printf("Match keypoint descriptors: %.12f\n", find_match_elapsed);
     printf("Compute Homography: %.2f\n", compute_homography_elapsed);
     printf("Stitch Images: %.2f\n", stitching_elapsed);
 }
