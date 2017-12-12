@@ -25,6 +25,10 @@ int main(int argc, char** argv) {
 
     double total_time_elapsed = 0.0;
     clock_t total_start = clock();
+
+    double IO_elapsed = 0.0;
+    clock_t IO_start = clock();
+
     Util util;
 
    //std::string im_names[1] = {"../data/mountainR.png"};
@@ -50,6 +54,8 @@ int main(int argc, char** argv) {
     Point* compareB = NULL;
     std::string test_pattern_filename = "../data/testPattern.txt";
     util.readTestPattern(compareA, compareB, test_pattern_filename);
+
+    IO_elapsed = util.get_time_elapsed(IO_start);    
 
     // compute BRIEF for keypoints
     std::vector<BriefResult> brief_results;
@@ -98,7 +104,6 @@ int main(int argc, char** argv) {
         }
     }
     
-    compute_homography_elapsed = util.get_time_elapsed(homography_start);
 
     // shift the panorama if warped images are out of boundaries
     double shiftX = -xMin;
@@ -118,12 +123,15 @@ int main(int argc, char** argv) {
     }
     std::cout << "Adjusted Panorama to Center Image" << std::endl;
 
+    compute_homography_elapsed = util.get_time_elapsed(homography_start);
+
     // Perform image stitching
     util.stitch(images, homographies, width, height);
 
     total_time_elapsed = util.get_time_elapsed(total_start);
-    printf("Total Time is %.2f\n", total_time_elapsed); 
-    printf("Compute Homography Time is %.2f\n", compute_homography_elapsed); 
+    printf("Total Time is %.2f\n", total_time_elapsed);
+    printf("IO Time is %.2f\n", IO_elapsed);
+    printf("Compute Homography Time is %.2f\n", compute_homography_elapsed);
 
     util.printTiming();
 
