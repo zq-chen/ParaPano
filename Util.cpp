@@ -222,8 +222,8 @@ void Util::stitch(std::vector<Mat> images, std::vector<Mat> homographies, int wi
     }
     stitching_elapsed = get_time_elapsed(stitching_start);
 
-    // displayImg(panorama);
-    imwrite("../output/panorama.jpg", panorama * 255);
+    displayImg(panorama);
+    //imwrite("../output/panorama.jpg", panorama * 255);
 }
 
 int Util::readTestPattern(Point*& compareA, Point*& compareB,
@@ -254,7 +254,8 @@ void Util::printImage(float* img, int h, int w) const {
 
 inline void Util::displayImg(Mat& im) const {
     // Create a window for display.
-    namedWindow( "Display window", WINDOW_AUTOSIZE );
-    imshow( "Display window", im);                // Show our image inside it.
+    namedWindow( "Display window", 0);
+    resizeWindow("Display window", im.cols, im.rows);
+    imshow( "Display window", im);           // Show our image inside it.
     waitKey(0);
 }
